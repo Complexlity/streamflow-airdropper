@@ -83,7 +83,7 @@ export function useTransferSol({ address, account }: { address: Address; account
   const { cluster } = useWalletUiCluster()
   const { client } = useWalletUi()
   const toastTransaction = useTransactionToast()
-  const txSigner = useWalletAccountTransactionSendingSigner(account, cluster.id)
+  const txSigner = useWalletAccountTransactionSendingSigner(account, cluster.id) as unknown as TransactionSendingSigner
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -91,10 +91,10 @@ export function useTransferSol({ address, account }: { address: Address; account
     mutationFn: async (input: { destination: Address; amount: number }) => {
       try {
         const { signature } = await createTransaction({
-          txSigner,
-          destination: input.destination,
           amount: input.amount,
+          destination: input.destination,
           client,
+          txSigner,
         })
 
         console.log(signature)
