@@ -1,26 +1,25 @@
-import { AppProviders } from '@/components/app-providers.tsx'
-import { AppLayout } from '@/components/app-layout.tsx'
-import { RouteObject, useRoutes } from 'react-router'
-import { lazy } from 'react'
+import { AppProviders } from "@/components/providers"
+import { AppLayout } from "@/components/app/layout"
+import { type RouteObject, useRoutes } from "react-router"
+import { lazy } from "react"
 
 const links = [
-  //
-  { label: 'Home', path: '/' },
-  { label: 'Account', path: '/account' },
+  { label: "Home", path: "/" },
+  { label: "Create", path: "/create" },
 ]
-const LazyDashboard = lazy(() => import('@/components/dashboard/dashboard-feature'))
-const LazyAccountIndex = lazy(() => import('@/components/account/account-index-feature'))
-const LazyAccountDetail = lazy(() => import('@/components/account/account-detail-feature'))
+
+const LazyHomePage = lazy(() => import("@/pages/home-page").then((module) => ({ default: module.HomePage })))
+const LazyAirdropDetailPage = lazy(() =>
+  import("@/pages/airdrop-detail-page").then((module) => ({ default: module.AirdropDetailPage })),
+)
+const LazyCreateAirdropPage = lazy(() =>
+  import("@/pages/create-airdrop-page").then((module) => ({ default: module.CreateAirdropPage })),
+)
 
 const routes: RouteObject[] = [
-  { index: true, element: <LazyDashboard /> },
-  {
-    path: 'account',
-    children: [
-      { index: true, element: <LazyAccountIndex /> },
-      { path: ':address', element: <LazyAccountDetail /> },
-    ],
-  },
+  { index: true, element: <LazyHomePage /> },
+  { path: "airdrop/:id", element: <LazyAirdropDetailPage /> },
+  { path: "create", element: <LazyCreateAirdropPage /> },
 ]
 
 export function App() {
