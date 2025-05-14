@@ -1,4 +1,4 @@
-import { WalletButton } from '../solana/solana-provider'
+import { WalletButton } from '../providers/solana-provider'
 
 import { useWalletUi } from '@wallet-ui/react'
 import { useNavigate } from 'react-router'

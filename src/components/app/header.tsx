@@ -2,8 +2,8 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
-import { ThemeSelect } from '@/components/theme-select'
-import { ClusterButton, WalletButton } from '@/components/solana/solana-provider'
+import { ThemeSelect } from '@/components/app/theme-select'
+import { ClusterButton, WalletButton } from '@/components/providers/solana-provider'
 import { Link, useLocation } from 'react-router'
 
 export function AppHeader({ links = [] }: { links: { label: string; path: string }[] }) {

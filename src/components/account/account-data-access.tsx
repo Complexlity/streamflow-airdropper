@@ -25,7 +25,7 @@ import {
   TransactionSendingSigner,
 } from 'gill'
 import { toast } from 'sonner'
-import { useTransactionToast } from '../use-transaction-toast'
+import { useTransactionToast } from '../app/use-transaction-toast'
 
 export function useGetBalance({ address }: { address: Address }) {
   const { cluster } = useWalletUiCluster()

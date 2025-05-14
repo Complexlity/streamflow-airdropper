@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { useParams } from 'react-router'
 import { ExplorerLink } from '../cluster/cluster-ui'
 import { AccountBalance, AccountButtons, AccountTokens, AccountTransactions } from './account-ui'
-import { AppHero } from '../app-hero'
+import { AppHero } from '../app/hero'
 import { ellipsify } from '@/lib/utils'
 
 export default function AccountDetailFeature() {

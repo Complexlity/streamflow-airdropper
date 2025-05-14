@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import * as React from 'react'
 import { getExplorerLink, GetExplorerLinkArgs } from 'gill'
 import { Button } from '@/components/ui/button'
-import { AppAlert } from '@/components/app-alert'
+import { AppAlert } from '@/components/app/alert'
 import { useWalletUi, useWalletUiCluster } from '@wallet-ui/react'
 
 export function ExplorerLink({
