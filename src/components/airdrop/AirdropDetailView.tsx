@@ -19,12 +19,8 @@ import { Calendar, Users } from "lucide-react"
 import { formatAddress, formatTokenAmount, formatUsdValue, formatDate } from "@/utils/format"
 import { calculateProgress } from "@/utils/calculations"
 import { useWallet } from "@solana/wallet-adapter-react"
+import { CopyButton } from "../ui/copy-button"
 
-
-
-/**
- * Detailed view of an airdrop
- */
 export function AirdropDetailView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -123,9 +119,7 @@ interface AirdropInfoCardProps {
   airdrop: AirdropCreateData
 }
 
-/**
- * Card displaying airdrop details
- */
+
 function AirdropInfoCard({ airdrop }: AirdropInfoCardProps) {
   const { data: token } = useTokenMetadata(airdrop.mint)
   const { data: tokenPrice } = useTokenPrice(airdrop.mint)
@@ -143,7 +137,9 @@ function AirdropInfoCard({ airdrop }: AirdropInfoCardProps) {
     <Card>
       <CardHeader>
         <CardTitle>Airdrop Details</CardTitle>
-        <CardDescription>ID: {formatAddress(airdrop.address)}</CardDescription>
+        <CardDescription>ID: {formatAddress(airdrop.address)}
+          <CopyButton text={airdrop.address} />
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-2">
