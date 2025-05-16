@@ -6,10 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useNavigate } from "react-router"
 
-/**
- * Home page component
- */
-const HomePage = () => {
+function HomePage() {
   const navigate = useNavigate()
 
   return (
