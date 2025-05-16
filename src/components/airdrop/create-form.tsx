@@ -21,11 +21,14 @@ import { useState } from "react"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 import { fetchTokenBalances, parseCsv } from "./mock-data"
+import { useTransactionToast } from "@/hooks/use-transaction-toast"
 
 export function CreateAirdropForm() {
   const navigate = useNavigate()
   const { wallet, connected, publicKey } = useWallet()
   const [submitting, setSubmitting] = useState(false)
+  const showTxToast = useTransactionToast()
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -174,7 +177,6 @@ export function CreateAirdropForm() {
 
       }
 
-      console.log({ data })
 
       console.log("Creating airdrop with distributor client")
       const result = await distributorClient.create(data, {
@@ -191,6 +193,9 @@ export function CreateAirdropForm() {
 
       if (result) {
         toast.success("Airdrop created successfully!")
+        if (result.txId) {
+          showTxToast(result.txId)
+        }
         navigate(`/airdrop/${airdropWithMerkleRoot.address}`)
       } else {
         toast.error("Failed to create airdrop")

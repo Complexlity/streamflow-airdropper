@@ -25,6 +25,7 @@ import {
 import { useEffect } from "react"
 import { LAMPORTS_PER_SOL_DECIMALS } from "@/lib/constants"
 import { fetchTokenPrice } from "./mock-data"
+import { useTransactionToast } from "@/hooks/use-transaction-toast"
 
 export function AirdropDetailView() {
   const { id } = useParams<{ id: string }>()
@@ -361,6 +362,8 @@ export function AirdropDetailView() {
 
 export const useClaimMutation = (client: typeof distributorClient, wallet: Wallet | null, claimantData: ClaimableAirdropItem | null | undefined, airdrop: AirdropCreateData | null | undefined) => {
 
+  const showTxToast = useTransactionToast();
+
   return useMutation({
     mutationFn: async () => {
       if (!airdrop || !wallet || !wallet.adapter.connected || !claimantData || !claimantData.distributorAddress) {
@@ -382,10 +385,11 @@ export const useClaimMutation = (client: typeof distributorClient, wallet: Walle
       return ixs;
     },
     onSuccess: (data) => {
-
-      toast.success("Successfully claimed tokens!", {
-        description: `Transaction ID: ${data.txId}`,
-      });
+      if (data?.txId) {
+        showTxToast(data.txId);
+      } else {
+        toast.success("Successfully claimed tokens!");
+      }
     },
     onError: (error) => {
       toast.error("Error claiming tokens");
