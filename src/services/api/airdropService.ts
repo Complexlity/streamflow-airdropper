@@ -26,12 +26,7 @@ const axiosStreamflow = axios.create({
  */
 export const getAirdropById = async (distributorId: string): Promise<AirdropCreateData> => {
   try {
-    const response = await axiosStreamflow.get<AirdropByIDRequest[]>(`${env.api.publicStreamflow}/airdrops`, {
-      params: {
-        chain: "SOLANA",
-        addresses: distributorId,
-      },
-    })
+    const response = await axiosStreamflow.get<AirdropByIDRequest[]>(`${env.api.proxyServer}/airdrops/${distributorId}`);
 
     if (!response.data || response.data.length === 0) {
       throw new ApiError("Airdrop not found", "not_found")
@@ -68,7 +63,7 @@ export const getAirdropById = async (distributorId: string): Promise<AirdropCrea
  */
 export const getAllAirdrops = async (limit = 10, offset = 0): Promise<AirdropSearchResultItem[]> => {
   try {
-    const response = await axiosStreamflow.post<AirdropSearchResult>(`${env.api.privateStreamflow}/airdrops/search`, {
+    const response = await axiosStreamflow.post<AirdropSearchResult>(`${env.api.proxyServer}/airdrops/search`, {
       actor: "",
       limit,
       offset,
@@ -78,15 +73,9 @@ export const getAllAirdrops = async (limit = 10, offset = 0): Promise<AirdropSea
           isActive: true,
         },
       },
-      sorters: [
-        {
-          by: "id",
-          order: "desc",
-        },
-      ],
-    })
-
-    return response.data.items
+      sorters: [{ by: "id", order: "desc" }],
+    });
+    return response.data.items;
   } catch (error) {
     console.error("Error fetching all airdrops:", error)
     throw new ApiError("Failed to fetch airdrops data", "api_error", error)
@@ -102,14 +91,14 @@ export const getAllAirdrops = async (limit = 10, offset = 0): Promise<AirdropSea
 export const getClaimableAirdrops = async (address: string, limit = 100): Promise<ClaimableAirdropResult["items"]> => {
   try {
     const response = await axiosStreamflow.get<ClaimableAirdropResult>(
-      `${env.api.privateStreamflow}/airdrops/claimable/${address}/`,
+      `${env.api.proxyServer}/airdrops/claimable/${address}`,
       {
         params: {
           limit,
           skimZeroValued: true,
         },
       },
-    )
+    );
 
     return response.data.items
   } catch (error) {
