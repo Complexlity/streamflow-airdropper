@@ -13,10 +13,9 @@ const axiosStreamflow = axios.create({
     }
 });
 
-const sidCookie = import.meta.env.VITE_SID_COOKIE;
-const serverUrl = import.meta.env.VITE_SERVER_URL;
-const merkleCreateUrl = `${serverUrl}/merkle`;
-const streamFlowTreasuryAddress = import.meta.env.VITE_STREAMFLOW_TREASURY_ADDRESS;
+const proxyServerUrl = import.meta.env.VITE_PROXY_SERVER_URL;
+const merkleCreateUrl = `${proxyServerUrl}/merkle`;
+
 export const getAirdropById = async (distributorId: string): Promise<AirdropCreateData> => {
     try {
 
@@ -108,7 +107,7 @@ export const getClaimantByAddress = async (
 ): Promise<ClaimableAirdropItem | null> => {
     try {
         const response = await axios.get<ClaimableAirdropItem | null>(
-            `${serverUrl}/claimant/${distributorId}/${claimantAddress}`
+            `${proxyServerUrl}/claimant/${distributorId}/${claimantAddress}`
         );
 
         return response.data;

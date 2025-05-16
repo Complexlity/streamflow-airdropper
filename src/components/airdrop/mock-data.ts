@@ -1,12 +1,12 @@
-import { connection } from "@/lib/services"
-import type { AirdropDetail, AirdropSearchResult, PriceResult, Recipient, Token, TokenMetadata } from "@/lib/types"
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
+import { connection } from "@/lib/services";
+import type { AirdropDetail, AirdropSearchResult, PriceResult, Recipient, Token, TokenMetadata } from "@/lib/types";
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import axios from "axios";
+import { PublicKey } from "@solana/web3.js";
 import { ICluster } from "@streamflow/common";
+import axios from "axios";
 
 
-const proxyServerUrl = import.meta.env.VITE_SERVER_URL;
+const proxyServerUrl = import.meta.env.VITE_PROXY_SERVER_URL;
 // Mock data for airdrops
 export const fetchAirdropsMock = async (): Promise<AirdropSearchResult> => {
     return {
