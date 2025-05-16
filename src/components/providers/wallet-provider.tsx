@@ -12,9 +12,8 @@ import {
   SolflareWalletAdapter,
   PhantomWalletAdapter,
 } from '@solana/wallet-adapter-wallets'
-
-// Default styles that can be overridden by your app
 import '@solana/wallet-adapter-react-ui/styles.css' 
+
 
 export default function AppWalletProvider({
   children,
@@ -26,7 +25,6 @@ export default function AppWalletProvider({
 
   const wallets = useMemo(
     () => [
-      // manually add any legacy wallet adapters here
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
     ],
