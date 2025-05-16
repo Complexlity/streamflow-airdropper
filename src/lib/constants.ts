@@ -6,3 +6,5 @@ export const QUERY_KEYS = {
     getAirdropById: "getAirdropById",
     getClaimableAirdrop: "getClaimableAirdrop"
 }
+
+export const LAMPORTS_PER_SOL_DECIMALS = 9

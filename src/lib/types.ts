@@ -24,7 +24,7 @@ export interface AirdropSearchResultItem {
     isActive: boolean
     isOnChain: boolean
     isVerified: boolean
-    clawbackDt: null
+    clawbackDt: string | null
     isAligned: boolean
 }
 
@@ -79,8 +79,8 @@ export interface Token {
     price: number
 }
 
-export interface ClaimantData {
-    chain: string;
+export interface ClaimableAirdropItem {
+    chain: Chain;
     distributorAddress: string;
     address: string;
     amountUnlocked: string;
@@ -90,7 +90,7 @@ export interface ClaimantData {
 }
 
 export interface AirdropCreateData {
-    chain: string;
+    chain: Chain;
     mint: string;
     version: number;
     address: string;
@@ -121,3 +121,41 @@ export interface AirdropCreateData {
 export interface AirdropByIDRequest extends AirdropSearchResultItem {
     merkleRoot: number[];
 }
+
+
+export interface ClaimableAirdropResult {
+    items: ClaimableAirdropItem[],
+    limit: number,
+    offset: number,
+}
+
+export interface TokenMetadata {
+    address: string;
+    name: string;
+    symbol: string;
+    decimals: number;
+    supply: string;
+    uri: string | null;
+    image: string;
+}
+
+
+export interface PriceResult {
+    data: Record<string, PriceData>
+}
+
+
+export interface PriceData {
+    value: number;
+    updateUnixTime: number;
+    volumeUSD: number;
+    priceChangePercent: number;
+    volumeChangePercent: number;
+    source: string;
+}
+
+
+export type csvReciepeints = {
+    address: string;
+    amount: string;
+}[]
