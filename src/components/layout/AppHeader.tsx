@@ -1,17 +1,25 @@
-import { useState } from 'react'
+"use client"
 
-import { Button } from '@/components/ui/button'
-import { Menu, X } from 'lucide-react'
-import { ThemeSelect } from '@/components/app/theme-select'
-import { Link, useLocation } from 'react-router'
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+import { useState } from "react"
+import { Link, useLocation } from "react-router"
+import { Button } from "@/components/ui/button"
+import { Menu, X } from "lucide-react"
+import { ThemeSelect } from "./ThemeSelect"
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui"
 
-export function AppHeader({ links = [] }: { links: { label: string; path: string }[] }) {
+interface AppHeaderProps {
+  links: { label: string; path: string }[]
+}
+
+/**
+ * Application header with navigation and wallet connection
+ */
+export const AppHeader = ({ links = [] }: AppHeaderProps) => {
   const { pathname } = useLocation()
   const [showMenu, setShowMenu] = useState(false)
 
-  function isActive(path: string) {
-    return path === '/' ? pathname === '/' : pathname.startsWith(path)
+  const isActive = (path: string) => {
+    return path === "/" ? pathname === "/" : pathname.startsWith(path)
   }
 
   return (
@@ -19,14 +27,14 @@ export function AppHeader({ links = [] }: { links: { label: string; path: string
       <div className="mx-auto flex justify-between items-center">
         <div className="flex items-baseline gap-4">
           <Link to="/" className="text-xl hover:text-neutral-500 dark:hover:text-white">
-            <span>Placeholder</span>
+            <span>Streamflow Airdropper</span>
           </Link>
           <div className="hidden md:flex items-center">
             <ul className="flex gap-4 flex-nowrap items-center">
               {links.map(({ label, path }) => (
                 <li key={path}>
                   <Link
-                    className={`hover:text-neutral-500 dark:hover:text-white ${isActive(path) ? 'text-neutral-500 dark:text-white' : ''}`}
+                    className={`hover:text-neutral-500 dark:hover:text-white ${isActive(path) ? "text-neutral-500 dark:text-white" : ""}`}
                     to={path}
                   >
                     {label}
@@ -42,10 +50,7 @@ export function AppHeader({ links = [] }: { links: { label: string; path: string
         </Button>
 
         <div className="hidden md:flex items-center gap-4">
-              <WalletMultiButton
-            style={{ backgroundColor: '#F97316', color: 'white' }}/>
-          {/* <WalletButton size="sm" />
-          <ClusterButton size="sm" /> */}
+          <WalletMultiButton />
           <ThemeSelect />
         </div>
 
@@ -56,7 +61,7 @@ export function AppHeader({ links = [] }: { links: { label: string; path: string
                 {links.map(({ label, path }) => (
                   <li key={path}>
                     <Link
-                      className={`hover:text-neutral-500 dark:hover:text-white block text-lg py-2  ${isActive(path) ? 'text-neutral-500 dark:text-white' : ''} `}
+                      className={`hover:text-neutral-500 dark:hover:text-white block text-lg py-2 ${isActive(path) ? "text-neutral-500 dark:text-white" : ""}`}
                       to={path}
                       onClick={() => setShowMenu(false)}
                     >
@@ -66,7 +71,7 @@ export function AppHeader({ links = [] }: { links: { label: string; path: string
                 ))}
               </ul>
               <div className="flex flex-col gap-4">
-                <WalletMultiButton  />
+                <WalletMultiButton />
                 <ThemeSelect />
               </div>
             </div>
