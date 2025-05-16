@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Link, useLocation } from "react-router"
+import { NavLink, useLocation } from "react-router"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { ThemeSelect } from "./ThemeSelect"
@@ -26,19 +26,28 @@ export const AppHeader = ({ links = [] }: AppHeaderProps) => {
     <header className="relative z-50 px-4 py-2 bg-neutral-100 dark:bg-neutral-900 dark:text-neutral-400">
       <div className="mx-auto flex justify-between items-center">
         <div className="flex items-baseline gap-4">
-          <Link to="/" className="text-xl hover:text-neutral-500 dark:hover:text-white">
+          <NavLink to="/" className="text-xl hover:text-neutral-500 dark:hover:text-white">
             <span>Streamflow Airdropper</span>
-          </Link>
+          </NavLink>
           <div className="hidden md:flex items-center">
             <ul className="flex gap-4 flex-nowrap items-center">
               {links.map(({ label, path }) => (
                 <li key={path}>
-                  <Link
-                    className={`hover:text-neutral-500 dark:hover:text-white ${isActive(path) ? "text-neutral-500 dark:text-white" : ""}`}
+                  <NavLink
                     to={path}
+                    style={({ isActive, isPending, isTransitioning }) => ({
+                      fontWeight: isActive ? "bold" : "",
+                      color: isPending
+                        ? "red"
+                        : isActive
+                          ? "" // text-neutral-500
+                          : "rgb(115 115 115)",
+                      viewTransitionName: isTransitioning ? "slide" : "",
+                    })}
+                    className="hover:text-neutral-500 dark:hover:text-white"
                   >
                     {label}
-                  </Link>
+                  </NavLink>
                 </li>
               ))}
             </ul>
@@ -60,13 +69,12 @@ export const AppHeader = ({ links = [] }: AppHeaderProps) => {
               <ul className="flex flex-col gap-4">
                 {links.map(({ label, path }) => (
                   <li key={path}>
-                    <Link
-                      className={`hover:text-neutral-500 dark:hover:text-white block text-lg py-2 ${isActive(path) ? "text-neutral-500 dark:text-white" : ""}`}
+                    <NavLink
+                      className={`hover:text-neutral-500 dark:hover:text-white ${isActive(path) ? "text-neutral-500 dark:text-white" : ""}`}
                       to={path}
-                      onClick={() => setShowMenu(false)}
                     >
                       {label}
-                    </Link>
+                    </NavLink>
                   </li>
                 ))}
               </ul>
