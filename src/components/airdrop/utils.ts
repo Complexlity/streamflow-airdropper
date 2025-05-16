@@ -2,6 +2,7 @@ import type { AirdropDetail, AirdropSearchResultItem, Token } from "@/lib/types"
 
 // Format token amount based on decimals
 export const formatTokenAmount = (amount: string, decimals: number): string => {
+    console.log({ amount, decimals })
     const value = BigInt(amount)
     const divisor = BigInt(10) ** BigInt(decimals)
     const integerPart = value / divisor

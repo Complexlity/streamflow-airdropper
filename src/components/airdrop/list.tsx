@@ -1,40 +1,51 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { fetchAirdropsMock, fetchClaimableAirdropsMock, fetchTokensInWalletMock } from "./mock-data"
-import type { AirdropSearchResultItem, Token } from "@/lib/types"
-import { AirdropCard } from "./card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { QUERY_KEYS } from "@/lib/constants"
+import { getAirdropById, getAllAirdrops, getClaimableAirdrops } from "@/lib/queries"
+import type { AirdropSearchResultItem, Token } from "@/lib/types"
+import { useWallet } from "@solana/wallet-adapter-react"
+import { QueryClient, useQuery } from "@tanstack/react-query"
+import { useState } from "react"
+import { AirdropCard } from "./card"
 
 export function AirdropList() {
-  const [loading, setLoading] = useState(true)
-  const [allAirdrops, setAllAirdrops] = useState<AirdropSearchResultItem[]>([])
-  const [claimableAirdrops, setClaimableAirdrops] = useState<AirdropSearchResultItem[]>([])
+  const { publicKey, connected } = useWallet()
+  const account = {
+    address: publicKey?.toBase58()
+  }
+  const userAddress = publicKey?.toBase58()
+  const queryClient = new QueryClient()
+
   const [tokens, setTokens] = useState<Token[]>([])
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const [allResult, claimableResult, tokensResult] = await Promise.all([
-          fetchAirdropsMock(),
-          fetchClaimableAirdropsMock(),
-          fetchTokensInWalletMock(),
-        ])
+  const { data: allAirdrops, isLoading: isLoadingAllAirdrops } = useQuery({
+    queryKey: [QUERY_KEYS.getAirdrops],
+    queryFn: getAllAirdrops
+  })
 
-        setAllAirdrops(allResult.items)
-        setClaimableAirdrops(claimableResult.items)
-        setTokens(tokensResult)
-      } catch (error) {
-        console.error("Error fetching airdrops:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const { data: mainClaimableAirdrops, isLoading: isLoadingClaimableAirdrops } = useQuery({
+    queryKey: [QUERY_KEYS.getClaimableAirdrop, account?.address],
+    queryFn: async () => {
+      if (!userAddress || !connected) return null
+      const claimableAirdrops = await getClaimableAirdrops(userAddress)
 
-    fetchData()
-  }, [])
+      const detailedAirdrops = await Promise.all(
+        claimableAirdrops.map(async (airdrop) => {
+          const detailedAirdrop = await getAirdropById(airdrop.distributorAddress)
+          queryClient.setQueryData(["airdrop", airdrop.distributorAddress], detailedAirdrop)
+          return { ...airdrop, ...detailedAirdrop }
+        })
+      )
+
+      return detailedAirdrops
+    },
+    enabled: !!userAddress && connected
+  })
+
+
+
 
   const getTokenForAirdrop = (airdrop: AirdropSearchResultItem) => {
     return tokens.find((token) => token.address === airdrop.mint)
@@ -48,44 +59,57 @@ export function AirdropList() {
       </TabsList>
 
       <TabsContent value="all" className="mt-0">
-        {loading ? (
+        {isLoadingAllAirdrops ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
               <Skeleton key={i} className="h-[200px] w-full" />
             ))}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {allAirdrops.length > 0 ? (
-              allAirdrops.map((airdrop) => (
-                <AirdropCard key={airdrop.address} airdrop={airdrop} token={getTokenForAirdrop(airdrop)} />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8">No airdrops found</div>
+        ) :
+          !allAirdrops || allAirdrops.length === 0 ?
+            <div className="col-span-full text-center py-8">No airdrops found</div>
+            :
+            (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {allAirdrops.length > 0 ? (
+                  allAirdrops.map((airdrop) => (
+                    <AirdropCard key={airdrop.address} airdrop={airdrop} token={getTokenForAirdrop(airdrop)} />
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-8">No airdrops found</div>
+                )}
+              </div>
             )}
-          </div>
-        )}
       </TabsContent>
 
       <TabsContent value="claimable" className="mt-0">
-        {loading ? (
+        {isLoadingClaimableAirdrops ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(3)].map((_, i) => (
               <Skeleton key={i} className="h-[200px] w-full" />
             ))}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {claimableAirdrops.length > 0 ? (
-              claimableAirdrops.map((airdrop) => (
-                <AirdropCard key={airdrop.address} airdrop={airdrop} token={getTokenForAirdrop(airdrop)} />
-              ))
-            ) : (
+        ) :
+          !mainClaimableAirdrops ? (
+            <div className="col-span-full text-center py-8">Wallet not connected</div>
+          )
+            : mainClaimableAirdrops.length === 0 ? (
               <div className="col-span-full text-center py-8">No claimable airdrops found</div>
-            )}
-          </div>
-        )}
+            ) :
+              (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {mainClaimableAirdrops.length > 0 ? (
+                    mainClaimableAirdrops.map((airdrop) => (
+                      <AirdropCard key={airdrop.distributorAddress} airdrop={airdrop} token={getTokenForAirdrop(airdrop)} />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-8">No claimable airdrops found</div>
+                  )}
+                </div>
+              )}
       </TabsContent>
     </Tabs>
   )
 }
+
+

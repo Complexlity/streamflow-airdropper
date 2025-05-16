@@ -1,81 +1,131 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useParams, useNavigate } from "react-router"
-import { claimAirdropMock, fetchAirdropByIdMock } from "./mock-data"
-import type { AirdropDetail } from "@/lib/types"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Skeleton } from "@/components/ui/skeleton"
+import { getAirdropById, getClaimantByAddress } from "@/lib/queries"
+import { distributorClient } from "@/lib/services"
+import { AirdropCreateData, ClaimableAirdropItem } from "@/lib/types"
+import { useWallet, Wallet, } from '@solana/wallet-adapter-react'
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query"
+import BN from "bn.js"
+import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Users } from "lucide-react"
+import { useNavigate, useParams } from "react-router"
+import { toast } from "sonner"
 import {
   calculateProgress,
-  calculateVestingProgress,
   formatAddress,
   formatDate,
   formatTokenAmount,
-  formatUsdValue,
+  formatUsdValue
 } from "./utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Skeleton } from "@/components/ui/skeleton"
-import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, Users } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { toast } from "sonner"
+import { useEffect } from "react"
+import { LAMPORTS_PER_SOL_DECIMALS } from "@/lib/constants"
+import { fetchTokenPrice } from "./mock-data"
 
 export function AirdropDetailView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(true)
-  const [claiming, setClaiming] = useState(false)
-  const [airdrop, setAirdrop] = useState<AirdropDetail | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = new QueryClient()
 
-  useEffect(() => {
-    const fetchAirdrop = async () => {
-      if (!id) return
+  const { wallet, publicKey } = useWallet()
+  const userAddress = publicKey?.toBase58()
 
-      setLoading(true)
-      setError(null)
-
-      try {
-        const result = await fetchAirdropByIdMock(id)
-        if (result) {
-          setAirdrop(result)
-        } else {
-          setError("Airdrop not found")
-        }
-      } catch (err) {
-        setError("Failed to load airdrop details")
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchAirdrop()
-  }, [id])
-
-  const handleClaim = async () => {
-    if (!airdrop) return
-
-    setClaiming(true)
-    try {
-      const result = await claimAirdropMock(airdrop.address)
-      if (result.success) {
-        toast.success("Successfully claimed tokens!", {
-          description: `Transaction ID: ${result.txId}`,
-        })
-      } else {
-        toast.error("Failed to claim tokens")
-      }
-    } catch (err) {
-      toast.error("Error claiming tokens")
-      console.error(err)
-    } finally {
-      setClaiming(false)
-    }
+  const {
+    data: airdrop,
+    isLoading: isLoadingAirdropById,
+    error
+  } = useQuery({
+    queryKey: ['airdrop', id],
+    queryFn: async () => {
+      if (!id) return null
+      return await getAirdropById(id)
+    },
+    enabled: !!id,
+  })
+  if (airdrop) {
+    airdrop.tokenDecimals = airdrop?.tokenDecimals || LAMPORTS_PER_SOL_DECIMALS
   }
 
-  if (loading) {
+
+  const { data: claimantData, isLoading: isLoadingClaimant } = useQuery({
+    queryKey: ['claimant', { id, userAddress }],
+    queryFn: async () => {
+      if (!id || !userAddress) return null
+      return await getClaimantByAddress(id, userAddress).catch(() => null)
+    },
+    enabled: !!id && !!userAddress,
+  })
+
+  const defaultEligiblity = { userEligible: false, userClaimed: false }
+  const { data, isLoading: isLoadingEligibility, refetch: refetchEligibility } = useQuery({
+    queryKey: ['eligibility', { user: publicKey?.toBase58(), distributor: id }],
+    queryFn: async () => {
+
+      if (!id || !userAddress || !claimantData) return defaultEligiblity
+      if (!claimantData.distributorAddress) return defaultEligiblity
+      console.log("Trying to prepare transaction...")
+
+      const ixs = await distributorClient.prepareClaimInstructions({
+        amountLocked: new BN(claimantData.amountLocked),
+        amountUnlocked: new BN(claimantData.amountUnlocked),
+        id: claimantData.distributorAddress,
+        proof: claimantData.proof
+      },
+        {
+          //@ts-expect-error: wallet is okay
+          invoker: wallet?.adapter
+        }).catch(e => {
+          console.error(e)
+          if (e.message === "invalid account discriminator") {
+            console.log("Cannot claim airdrop")
+            return { userEligible: false, userClaimed: true }
+          }
+          return defaultEligiblity
+        })
+      return { userEligible: !!ixs, userClaimed: !ixs }
+    },
+    enabled: !!id && !!userAddress && !!claimantData
+  })
+
+  const { userEligible, userClaimed } = data || defaultEligiblity
+
+
+  const { mutate: claimMutation, isSuccess, isPending: isClaimMutating } = useClaimMutation(distributorClient, wallet, claimantData, airdrop)
+
+
+
+  useEffect(() => {
+    if (isSuccess) {
+      queryClient.invalidateQueries({
+        queryKey: ['eligibility', { user: publicKey?.toBase58(), distributor: id }],
+      })
+      refetchEligibility()
+    }
+  }, [isSuccess])
+
+
+  const {
+    data: tokenPrice,
+    isLoading: isLoadingTokenPrice,
+    error: tokenPriceError,
+  } = useQuery({
+    queryKey: ['tokenPrice', airdrop?.mint],
+    queryFn: async () => {
+      if (!airdrop?.mint) return 0
+      return await fetchTokenPrice(airdrop.mint)
+    },
+    enabled: !!airdrop?.mint,
+  })
+
+  if (tokenPrice && airdrop) {
+    airdrop.usdValue = tokenPrice
+  }
+
+  if (isLoadingAirdropById) {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
@@ -101,7 +151,7 @@ export function AirdropDetailView() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {error || "Airdrop not found"}
+            {error instanceof Error ? error.message : "Airdrop not found"}
             <div className="mt-4">
               <Button onClick={() => navigate("/")}>Go to Home</Button>
             </div>
@@ -111,8 +161,11 @@ export function AirdropDetailView() {
     )
   }
 
-  const claimedProgress = calculateProgress(airdrop.claimedAmount, airdrop.maxTotalClaim)
-  const vestingProgress = airdrop.type === "Vested" ? calculateVestingProgress(airdrop) : 100
+  const claimedProgress = calculateProgress(airdrop.totalAmountUnlocked, airdrop.maxTotalClaim)
+
+
+  const userClaimableAmount = claimantData?.amountLocked
+
 
   return (
     <div className="space-y-6">
@@ -122,13 +175,19 @@ export function AirdropDetailView() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-2xl font-bold">{airdrop.name}</h1>
-          <Badge variant={airdrop.isActive ? "default" : "secondary"}>{airdrop.isActive ? "Active" : "Inactive"}</Badge>
-          <Badge variant="outline">{airdrop.type}</Badge>
+          <Badge variant={airdrop.isActive ? "default" : "secondary"}>
+            {airdrop.isActive ? "Active" : "Inactive"}
+          </Badge>
+          <Badge variant="outline">{airdrop.type || "Instant"}</Badge>
         </div>
 
-        {airdrop.userEligible && airdrop.isActive && (
-          <Button onClick={handleClaim} disabled={claiming} className="w-full sm:w-auto">
-            {claiming ? "Claiming..." : "Claim Tokens"}
+        {userEligible && airdrop.isActive && !userClaimed && Number(userClaimableAmount) && (
+          <Button
+            onClick={() => claimMutation()}
+            disabled={isClaimMutating}
+            className="w-full sm:w-auto"
+          >
+            {isClaimMutating ? "Claiming..." : "Claim Tokens"}
           </Button>
         )}
       </div>
@@ -137,17 +196,12 @@ export function AirdropDetailView() {
         <Card>
           <CardHeader>
             <CardTitle>Airdrop Details</CardTitle>
-            <CardDescription>ID: {airdrop.address}</CardDescription>
+            <CardDescription>ID: {formatAddress(airdrop.address)}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
-              <img
-                src={airdrop.tokenLogo || "/placeholder.svg"}
-                alt={airdrop.tokenSymbol}
-                className="w-6 h-6 rounded-full"
-              />
               <span className="font-medium">
-                {airdrop.tokenName} ({airdrop.tokenSymbol})
+                {airdrop.name} ({airdrop.tokenSymbol || "????"})
               </span>
             </div>
 
@@ -155,21 +209,25 @@ export function AirdropDetailView() {
               <div>
                 <p className="text-sm text-muted-foreground">Total Amount</p>
                 <p className="font-medium">
-                  {formatTokenAmount(airdrop.maxTotalClaim, airdrop.tokenDecimals)} {airdrop.tokenSymbol}
+                  {formatTokenAmount(airdrop.maxTotalClaim, airdrop.tokenDecimals!)} {airdrop.tokenSymbol}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatUsdValue(airdrop.maxTotalClaim, airdrop.tokenDecimals, airdrop.tokenPrice)}
-                </p>
+                {airdrop.usdValue !== undefined && (
+                  <p className="text-xs text-muted-foreground">
+                    {formatUsdValue(airdrop.maxTotalClaim, airdrop.tokenDecimals!, airdrop.usdValue)}
+                  </p>
+                )}
               </div>
 
               <div>
                 <p className="text-sm text-muted-foreground">Claimed Amount</p>
                 <p className="font-medium">
-                  {formatTokenAmount(airdrop.claimedAmount, airdrop.tokenDecimals)} {airdrop.tokenSymbol}
+                  {formatTokenAmount(airdrop.totalAmountUnlocked, airdrop.tokenDecimals!)} {airdrop.tokenSymbol}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatUsdValue(airdrop.claimedAmount, airdrop.tokenDecimals, airdrop.tokenPrice)}
-                </p>
+                {airdrop.usdValue !== undefined && (
+                  <p className="text-xs text-muted-foreground">
+                    {formatUsdValue(airdrop.totalAmountUnlocked, airdrop.tokenDecimals!, airdrop.usdValue)}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -181,6 +239,25 @@ export function AirdropDetailView() {
                 <p className="text-sm text-muted-foreground">Token Address</p>
                 <p className="font-medium">{formatAddress(airdrop.mint)}</p>
               </div>
+
+              <div>
+                <p className="text-sm text-muted-foreground">Chain</p>
+                <p className="font-medium">{airdrop.chain}</p>
+              </div>
+
+              <div>
+                <p className="text-sm text-muted-foreground">Status</p>
+                <div className="flex gap-2">
+                  <Badge variant={airdrop.isOnChain ? "outline" : "secondary"}>
+                    {airdrop.isOnChain ? "On-Chain" : "Off-Chain"}
+                  </Badge>
+                  {airdrop.isVerified && (
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Verified
+                    </Badge>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -191,12 +268,24 @@ export function AirdropDetailView() {
               <Progress value={claimedProgress} className="h-2" />
             </div>
 
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span>
-                {airdrop.claimedCount} / {airdrop.totalRecipients} recipients claimed
-              </span>
-            </div>
+            {airdrop.recipientsClaimed !== undefined && airdrop.totalRecipients !== undefined && (
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span>
+                  {airdrop.recipientsClaimed} / {airdrop.totalRecipients} recipients claimed
+                </span>
+              </div>
+            )}
+
+            {airdrop.clawbackDt && (
+              <div>
+                <p className="text-sm text-muted-foreground">Clawback Date</p>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3 text-muted-foreground" />
+                  <p className="text-sm">{formatDate(Number(airdrop.clawbackDt))}</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -204,78 +293,57 @@ export function AirdropDetailView() {
           <CardHeader>
             <CardTitle>Your Allocation</CardTitle>
             <CardDescription>
-              {airdrop.userEligible ? "You are eligible for this airdrop" : "You are not eligible for this airdrop"}
+              {isLoadingClaimant
+                ? "Checking if you're eligible to claim..."
+                : isLoadingEligibility
+                  ? "You are eligible. Checking if you can claim..."
+                  : userEligible
+                    ? userClaimed
+                      ? "You have already claimed this airdrop"
+                      : "You are eligible for this airdrop"
+                    : "You are not eligible for this airdrop"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {airdrop.userEligible ? (
-              <>
-                <div>
-                  <p className="text-sm text-muted-foreground">Your Claimable Amount</p>
-                  <p className="text-2xl font-bold">
-                    {formatTokenAmount(airdrop.userClaimableAmount, airdrop.tokenDecimals)} {airdrop.tokenSymbol}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {formatUsdValue(airdrop.userClaimableAmount, airdrop.tokenDecimals, airdrop.tokenPrice)}
-                  </p>
-                </div>
-
-                {airdrop.type === "Vested" && (
-                  <>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span>Vesting Progress</span>
-                        <span>{vestingProgress.toFixed(0)}%</span>
-                      </div>
-                      <Progress value={vestingProgress} className="h-2" />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Start Date</p>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-muted-foreground" />
-                          <p className="text-sm">{formatDate(airdrop.startVestingTs)}</p>
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground">End Date</p>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-muted-foreground" />
-                          <p className="text-sm">{formatDate(airdrop.endVestingTs)}</p>
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground">Unlock Interval</p>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-                          <p className="text-sm capitalize">{airdrop.unlockInterval}</p>
-                        </div>
-                      </div>
-
-                      {airdrop.cliffAmount && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Cliff Amount</p>
-                          <p className="text-sm">
-                            {formatTokenAmount(airdrop.cliffAmount, airdrop.tokenDecimals)} {airdrop.tokenSymbol}
-                            {airdrop.cliffPercentage && ` (${airdrop.cliffPercentage}%)`}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
-                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  <AlertTitle className="text-green-600 dark:text-green-400">Ready to claim</AlertTitle>
-                  <AlertDescription className="text-green-600/90 dark:text-green-400/90">
-                    You can claim your tokens now
+            {isLoadingEligibility || isLoadingClaimant ? (
+              <Skeleton className="h-10 w-full" />
+            ) : userEligible ? (
+              userClaimed || !Number(userClaimableAmount) ? (
+                <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+                  <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <AlertTitle className="text-blue-600 dark:text-blue-400">Already Claimed</AlertTitle>
+                  <AlertDescription className="text-blue-600/90 dark:text-blue-400/90">
+                    You have already claimed your tokens for this airdrop.
                   </AlertDescription>
                 </Alert>
-              </>
+              ) : (
+                <>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Your Claimable Amount</p>
+                    <p className="text-2xl font-bold">
+                      {formatTokenAmount(userClaimableAmount || "0", airdrop.tokenDecimals!)}{" "}
+                      {airdrop.tokenSymbol}
+                    </p>
+                    {airdrop.usdValue !== undefined && (
+                      <p className="text-sm text-muted-foreground">
+                        {formatUsdValue(
+                          userClaimableAmount || "0",
+                          airdrop.tokenDecimals!,
+                          airdrop.usdValue
+                        )}
+                      </p>
+                    )}
+                  </div>
+
+                  <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <AlertTitle className="text-green-600 dark:text-green-400">Ready to claim</AlertTitle>
+                    <AlertDescription className="text-green-600/90 dark:text-green-400/90">
+                      You can claim your tokens now
+                    </AlertDescription>
+                  </Alert>
+                </>
+              )
             ) : (
               <Alert>
                 <AlertCircle className="h-4 w-4" />
@@ -289,3 +357,39 @@ export function AirdropDetailView() {
     </div>
   )
 }
+
+
+export const useClaimMutation = (client: typeof distributorClient, wallet: Wallet | null, claimantData: ClaimableAirdropItem | null | undefined, airdrop: AirdropCreateData | null | undefined) => {
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!airdrop || !wallet || !wallet.adapter.connected || !claimantData || !claimantData.distributorAddress) {
+        throw new Error("Required data or connections missing");
+      }
+
+      const claimingData = {
+        amountLocked: new BN(claimantData.amountLocked),
+        amountUnlocked: new BN(claimantData.amountUnlocked),
+        id: claimantData.distributorAddress,
+        proof: claimantData.proof
+      }
+
+      const ixs = await client.claim(claimingData, {
+        //@ts-expect-error: this works
+        invoker: wallet.adapter
+      });
+
+      return ixs;
+    },
+    onSuccess: (data) => {
+
+      toast.success("Successfully claimed tokens!", {
+        description: `Transaction ID: ${data.txId}`,
+      });
+    },
+    onError: (error) => {
+      toast.error("Error claiming tokens");
+      console.error(error);
+    }
+  });
+};

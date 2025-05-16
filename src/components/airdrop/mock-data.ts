@@ -1,5 +1,12 @@
-import type { AirdropDetail, AirdropSearchResult, Recipient, Token } from "@/lib/types"
+import { connection } from "@/lib/services"
+import type { AirdropDetail, AirdropSearchResult, PriceResult, Recipient, Token, TokenMetadata } from "@/lib/types"
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import axios from "axios";
+import { ICluster } from "@streamflow/common";
 
+
+const proxyServerUrl = import.meta.env.VITE_SERVER_URL;
 // Mock data for airdrops
 export const fetchAirdropsMock = async (): Promise<AirdropSearchResult> => {
     return {
@@ -341,22 +348,28 @@ export const createAirdropMock = async (params: any): Promise<{ success: boolean
 }
 
 // Mock function for parsing CSV
-export const parseCSVMock = async (file: File): Promise<Recipient[]> => {
-    // Simulate a delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+export const parseCsv = async (file: File): Promise<Recipient[]> => {
+    const text = await file.text()
+    const lines = text.split("\n").slice(1) // Skip the header row
 
-    // Return mock recipients
-    return [
-        { address: "address1111111111111111111111111111111", amount: "1000000" },
-        { address: "address2222222222222222222222222222222", amount: "2000000" },
-        { address: "address3333333333333333333333333333333", amount: "3000000" },
-        { address: "address4444444444444444444444444444444", amount: "4000000" },
-        { address: "address5555555555555555555555555555555", amount: "5000000" },
-    ]
+    const recipients: Recipient[] = lines.map((line, index) => {
+        const [address, amount] = line.split(",")
+        if (!address || !amount) {
+            throw new Error(`Invalid file format at line ${index + 2}: Missing address or amount`)
+        }
+
+        return {
+            address: address.trim(),
+            amount: (parseFloat(amount.trim())).toString(), // Convert to lamports
+        }
+    })
+
+    return recipients
 }
 
 // Mock function for fetching tokens in wallet
 export const fetchTokensInWalletMock = async (): Promise<Token[]> => {
+
     return [
         {
             address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
@@ -401,15 +414,64 @@ export const fetchTokensInWalletMock = async (): Promise<Token[]> => {
     ]
 }
 
-// Mock function for fetching token price
-export const fetchTokenPriceMock = async (tokenAddress: string): Promise<number> => {
-    const prices: Record<string, number> = {
-        EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: 1.0, // USDC
-        So11111111111111111111111111111111111111112: 150.0, // SOL
-        mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So: 160.0, // mSOL
-        DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263: 0.00002, // BONK
-        "7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj": 155.0, // stSOL
-    }
+async function fetchTokenMetadata(mint: string, cluster: ICluster): Promise<TokenMetadata> {
+    const response = await axios.post(`${proxyServerUrl}/token-meta`, {
+        addresses: [mint],
+        cluster: cluster,
+    }, {
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+    });
 
-    return prices[tokenAddress] || 0
+    return response.data[mint] as TokenMetadata;
 }
+
+export async function fetchTokenBalances(walletAddress: string) {
+    const publicKey = new PublicKey(walletAddress);
+
+    // ✅ Get native SOL balance (in lamports)
+    const lamports = await connection.getBalance(publicKey);
+    const sol = lamports / 1e9;
+
+    // ✅ Get all SPL token accounts
+    const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
+        programId: TOKEN_PROGRAM_ID,
+    });
+
+    const tokens = await Promise.all(
+        tokenAccounts.value.map(async ({ pubkey, account }) => {
+            const mint = account.data.parsed.info.mint as string;
+            const amount = Number(account.data.parsed.info.tokenAmount.uiAmountString);
+
+            // Fetch metadata for the token
+            const meta = await fetchTokenMetadata(mint);
+
+            return {
+                mint,
+                amount,
+                ...meta
+            };
+        })
+    );
+
+    return {
+        sol,
+        tokens,
+    };
+};
+
+// Mock function for fetching token price
+export const fetchTokenPrice = async (tokenAddress: string, cluster: string = "devnet"): Promise<number> => {
+    const endpoint = `${proxyServerUrl}/price?ids=${tokenAddress}&cluster=${cluster}`;
+    const response = await fetch(endpoint);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch price for token ${tokenAddress}`);
+    }
+    const data = await response.json() as PriceResult;
+    return data?.data?.[tokenAddress]?.value ?? 0;
+}
+
+// const res = await fetchTokenBalances("FZ5RyFjsYV5pQN9pCW3ovU7mAtfuUKsDQiSbrzH49E4Y")
+// console.log(JSON.stringify(res, null, 2))

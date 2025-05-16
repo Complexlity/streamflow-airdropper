@@ -2,10 +2,6 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { useNavigate } from "react-router"
-import { createAirdropMock, fetchTokensInWalletMock, parseCSVMock } from "./mock-data"
-import type { Recipient, Token } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,16 +9,23 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useEffect } from "react"
-import { toast } from "sonner"
+import { createAirdropMerkleRoot } from "@/lib/queries"
+import { distributorClient } from "@/lib/services"
+import type { Recipient } from "@/lib/types"
+import { useWallet } from "@solana/wallet-adapter-react"
+import { ICreateDistributorData } from "@streamflow/distributor/solana"
+import { useQuery } from "@tanstack/react-query"
+import BN from "bn.js"
 import { ArrowLeft, Calendar, Clock, Upload, Users } from "lucide-react"
+import { useState } from "react"
+import { useNavigate } from "react-router"
+import { toast } from "sonner"
+import { fetchTokenBalances, parseCsv } from "./mock-data"
 
 export function CreateAirdropForm() {
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
+  const { wallet, connected, publicKey } = useWallet()
   const [submitting, setSubmitting] = useState(false)
-  const [tokens, setTokens] = useState<Token[]>([])
 
   const [formData, setFormData] = useState({
     name: "",
@@ -35,9 +38,6 @@ export function CreateAirdropForm() {
     singleClaim: true,
     endDate: "",
     endTime: "",
-    hasCliff: false,
-    cliffAmount: "",
-    cliffPercentage: "",
     unlockInterval: "daily",
   })
 
@@ -45,21 +45,18 @@ export function CreateAirdropForm() {
   const [csvFile, setCsvFile] = useState<File | null>(null)
   const [csvError, setCsvError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchTokens = async () => {
-      setLoading(true)
-      try {
-        const result = await fetchTokensInWalletMock()
-        setTokens(result)
-      } catch (error) {
-        console.error("Error fetching tokens:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  // Replace useEffect with useQuery for fetching tokens
 
-    fetchTokens()
-  }, [])
+  const { data: tokensData, isLoading: loadingTokens } = useQuery({
+    queryKey: ["tokenBalances", publicKey?.toBase58()],
+    queryFn: async () => {
+      if (!publicKey) return null
+      return await fetchTokenBalances(publicKey?.toBase58())
+    },
+    enabled: !!publicKey,
+  })
+
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -82,7 +79,7 @@ export function CreateAirdropForm() {
     setCsvError(null)
 
     try {
-      const parsedRecipients = await parseCSVMock(file)
+      const parsedRecipients = await parseCsv(file)
       setRecipients(parsedRecipients)
       toast.success(`Successfully parsed ${parsedRecipients.length} recipients`)
     } catch (error) {
@@ -94,6 +91,39 @@ export function CreateAirdropForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Prepare the data for submission
+    let startTimestamp = formData.startImmediately
+      ? 0
+      : Math.floor(new Date(`${formData.startDate}T${formData.startTime || "00:00"}`).getTime() / 1000)
+
+    const now = Math.floor(Date.now() / 1000)
+    if (startTimestamp < now) {
+      startTimestamp = 0
+    }
+
+    const endTimestamp =
+      formData.type === "vested"
+        ? Math.floor(new Date(`${formData.endDate}T${formData.endTime || "23:59"}`).getTime() / 1000)
+        : 0 // Default to 30 days for instant airdrops
+
+    console.log({ startTimestamp, endTimestamp, now: Math.floor(Date.now() / 1000) })
+
+    if (endTimestamp) {
+      if (endTimestamp && endTimestamp < startTimestamp) {
+        toast.error("End date must be after start date")
+        return
+      }
+      if (endTimestamp < now) {
+        toast.error("End date must be in the future")
+        return
+      }
+    }
+
+    if (!connected) {
+      toast.error("Please connect your wallet")
+      return
+    }
+
     if (!formData.name) {
       toast.error("Please enter a name for the airdrop")
       return
@@ -103,6 +133,7 @@ export function CreateAirdropForm() {
       toast.error("Please select a token")
       return
     }
+    setSubmitting(true)
 
     if (recipients.length === 0) {
       toast.error("Please upload recipients")
@@ -114,45 +145,53 @@ export function CreateAirdropForm() {
       return
     }
 
-    setSubmitting(true)
 
     try {
-      // Prepare the data for submission
-      const startTimestamp = formData.startImmediately
-        ? Math.floor(Date.now() / 1000)
-        : Math.floor(new Date(`${formData.startDate}T${formData.startTime || "00:00"}`).getTime() / 1000)
+      const airdropWithMerkleRoot = await createAirdropMerkleRoot({
+        recepients: recipients,
+        name: formData.name,
+        mint: formData.mint === "native" ? "So11111111111111111111111111111111111111112" : formData.mint,
+      })
 
-      const endTimestamp =
-        formData.type === "vested"
-          ? Math.floor(new Date(`${formData.endDate}T${formData.endTime || "23:59"}`).getTime() / 1000)
-          : startTimestamp + 86400 * 30 // Default to 30 days for instant airdrops
+
 
       const unlockPeriod =
-        formData.unlockInterval === "daily" ? 86400 : formData.unlockInterval === "weekly" ? 604800 : 2592000 // monthly
+        formData.unlockInterval === "daily" ? 86400 : formData.unlockInterval === "weekly" ? 604800 : 2592000
 
-      const totalAmount = recipients.reduce((sum, recipient) => sum + BigInt(recipient.amount), BigInt(0)).toString()
 
-      const createParams = {
-        name: formData.name,
-        mint: formData.mint,
-        version: 1,
-        root: [1, 2, 3, 4], // Mock Merkle root
-        maxTotalClaim: totalAmount,
-        maxNumNodes: recipients.length.toString(),
+      const data: ICreateDistributorData = {
+        root: airdropWithMerkleRoot.merkleRoot,
+        mint: airdropWithMerkleRoot.mint,
+        version: airdropWithMerkleRoot.version,
+        maxTotalClaim: new BN(airdropWithMerkleRoot.maxTotalClaim),
+        maxNumNodes: new BN(airdropWithMerkleRoot.maxNumNodes),
         unlockPeriod,
         startVestingTs: startTimestamp,
-        endVestingTs: endTimestamp,
-        clawbackStartTs: formData.isCancellable ? endTimestamp + 86400 : 0,
+        ...(endTimestamp ? { endVestingTs: endTimestamp } : {}),
         claimsClosableByAdmin: formData.isCancellable,
         claimsClosableByClaimant: false,
         claimsLimit: formData.singleClaim ? 1 : 0,
+
       }
 
-      const result = await createAirdropMock(createParams)
+      console.log({ data })
 
-      if (result.success) {
+      console.log("Creating airdrop with distributor client")
+      const result = await distributorClient.create(data, {
+        //@ts-expect-error: this works
+        invoker: wallet.adapter
+      }).catch(e => {
+        console.error(e)
+        console.log("This is how it fails")
+        return null
+      })
+      console.log("This is how it ends")
+
+
+
+      if (result) {
         toast.success("Airdrop created successfully!")
-        navigate(`/airdrop/${result.airdropId}`)
+        navigate(`/airdrop/${airdropWithMerkleRoot.address}`)
       } else {
         toast.error("Failed to create airdrop")
       }
@@ -214,21 +253,38 @@ export function CreateAirdropForm() {
 
             <div className="space-y-2">
               <Label htmlFor="token">Select Token</Label>
-              <Select value={formData.mint} onValueChange={(value) => handleSelectChange("mint", value)}>
+              <Select
+                value={formData.mint}
+                onValueChange={(value) => handleSelectChange("mint", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a token" />
                 </SelectTrigger>
                 <SelectContent>
-                  {tokens.map((token) => (
+                  {/* SOL option */}
+                  <SelectItem value="native">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={"https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png"}
+                        alt="SOL"
+                        className="w-4 h-4 rounded-full"
+                      />
+                      <span>
+                        SOL - {tokensData ? tokensData.sol : 0}
+                      </span>
+                    </div>
+                  </SelectItem>
+                  {/* SPL tokens */}
+                  {tokensData?.tokens?.map((token) => (
                     <SelectItem key={token.address} value={token.address}>
                       <div className="flex items-center gap-2">
                         <img
-                          src={token.logoURI || "/placeholder.svg"}
+                          src={token.image || "/placeholder.svg"}
                           alt={token.symbol}
                           className="w-4 h-4 rounded-full"
                         />
                         <span>
-                          {token.symbol} - Balance: {Number.parseFloat(token.balance) / 10 ** token.decimals}
+                          {token.name.trim().startsWith("Wrapped") ? `W${token.symbol}` : token.symbol} - {token.amount}
                         </span>
                       </div>
                     </SelectItem>
@@ -364,57 +420,6 @@ export function CreateAirdropForm() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Cliff</Label>
-                      <p className="text-sm text-muted-foreground">Amount unlocked immediately when vesting starts</p>
-                    </div>
-                    <Switch
-                      checked={formData.hasCliff}
-                      onCheckedChange={(checked) => handleSwitchChange("hasCliff", checked)}
-                    />
-                  </div>
-
-                  {formData.hasCliff && (
-                    <Tabs defaultValue="percentage" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="percentage">Percentage</TabsTrigger>
-                        <TabsTrigger value="amount">Amount</TabsTrigger>
-                      </TabsList>
-
-                      <TabsContent value="percentage" className="mt-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="cliffPercentage">Cliff Percentage</Label>
-                          <Input
-                            id="cliffPercentage"
-                            name="cliffPercentage"
-                            type="number"
-                            min="0"
-                            max="100"
-                            placeholder="e.g. 10"
-                            value={formData.cliffPercentage}
-                            onChange={handleInputChange}
-                          />
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="amount" className="mt-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="cliffAmount">Cliff Amount</Label>
-                          <Input
-                            id="cliffAmount"
-                            name="cliffAmount"
-                            type="text"
-                            placeholder="e.g. 1000"
-                            value={formData.cliffAmount}
-                            onChange={handleInputChange}
-                          />
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  )}
-                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="unlockInterval">Unlock Interval</Label>
@@ -440,7 +445,7 @@ export function CreateAirdropForm() {
         <div className="flex justify-end">
           <Button
             type="submit"
-            disabled={submitting || loading || recipients.length === 0}
+            disabled={submitting || loadingTokens || recipients.length === 0}
             className="w-full md:w-auto"
           >
             {submitting ? "Creating..." : "Create Airdrop"}

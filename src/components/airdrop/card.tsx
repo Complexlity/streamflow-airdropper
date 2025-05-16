@@ -1,14 +1,17 @@
 "use client"
 
-import { useNavigate } from "react-router"
-import type { AirdropSearchResultItem, Token } from "@/lib/types"
-import { calculateProgress, formatAddress, formatTokenAmount, formatUsdValue } from "./utils"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import type { Token } from "@/lib/types"
+import { AirdropSearchResultItem } from "@/lib/types"
+import { useNavigate } from "react-router"
+import { calculateProgress, formatAddress, formatTokenAmount, formatUsdValue } from "./utils"
+
 
 interface AirdropCardProps {
   airdrop: AirdropSearchResultItem
+
   token?: Token
 }
 
