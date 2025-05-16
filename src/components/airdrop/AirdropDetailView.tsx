@@ -36,6 +36,7 @@ export function AirdropDetailView() {
   const { data: claimantData, isLoading: isLoadingClaimant } = useClaimantData(id, walletAddress)
 
   const { data: eligibilityData, isLoading: isLoadingEligibility } = useClaimEligibility(id, claimantData)
+  const userClaimableAmount = claimantData?.amountLocked || "0"
 
   const { mutate: claimAirdrop, isPending: isClaimPending } = useClaimAirdrop()
 
@@ -98,7 +99,7 @@ export function AirdropDetailView() {
           <Badge variant="outline">{airdrop.type || "Instant"}</Badge>
         </div>
 
-        {eligibilityData?.userEligible && airdrop.isActive && !eligibilityData.userClaimed && (
+        {eligibilityData?.userEligible && airdrop.isActive && !eligibilityData.userClaimed && !!Number(userClaimableAmount) && (
           <Button onClick={handleClaim} disabled={isClaimPending} className="w-full sm:w-auto">
             {isClaimPending ? "Claiming..." : "Claim Tokens"}
           </Button>
