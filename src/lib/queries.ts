@@ -111,32 +111,12 @@ export const getClaimantByAddress = async (
         );
 
         return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching claimant from server:", error);
         throw new Error("Failed to fetch claimant data");
     }
 };
 
-// Mock function for token information - in a real app, this would fetch from a price API
-export const getTokenInfo = async (mintAddress: string): Promise<{
-    symbol: string;
-    decimals: number;
-    usdPrice: number;
-}> => {
-    const tokens: Record<string, { symbol: string; decimals: number; usdPrice: number }> = {
-        'STREAMribRwybYpMmSYoCsQUdr6MZNXEqHgm7p1gu9M': {
-            symbol: 'STREAM',
-            decimals: 9,
-            usdPrice: 0.135, // Example price
-        },
-    };
-
-    return tokens[mintAddress] || {
-        symbol: mintAddress.substring(0, 4),
-        decimals: 9,
-        usdPrice: 0.1, // Default price
-    };
-};
 
 // For some reason, this always errors
 export async function getClaimStatus(distributorId: string, claimantAddress: string) {

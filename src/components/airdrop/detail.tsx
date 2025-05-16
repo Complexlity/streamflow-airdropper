@@ -111,8 +111,6 @@ export function AirdropDetailView() {
 
   const {
     data: tokenPrice,
-    isLoading: isLoadingTokenPrice,
-    error: tokenPriceError,
   } = useQuery({
     queryKey: ['tokenPrice', airdrop?.mint],
     queryFn: async () => {

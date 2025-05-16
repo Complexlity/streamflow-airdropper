@@ -7,6 +7,11 @@ import type { Token } from "@/lib/types"
 import { AirdropSearchResultItem } from "@/lib/types"
 import { useNavigate } from "react-router"
 import { calculateProgress, formatAddress, formatTokenAmount, formatUsdValue } from "./utils"
+import { useQuery } from "@tanstack/react-query"
+import { QUERY_KEYS } from "@/lib/constants"
+import { } from "@/lib/queries"
+import { fetchTokenPrice, getTokenMetadata } from "./mock-data"
+import { cluster } from "@/lib/services"
 
 
 interface AirdropCardProps {
@@ -15,12 +20,30 @@ interface AirdropCardProps {
   token?: Token
 }
 
-export function AirdropCard({ airdrop, token }: AirdropCardProps) {
+export function AirdropCard({ airdrop }: AirdropCardProps) {
   const navigate = useNavigate()
 
   const handleClick = () => {
     navigate(`/airdrop/${airdrop.address}`)
   }
+
+  const { data: token } = useQuery({
+    queryKey: [QUERY_KEYS.getTokenMetadata, { address: airdrop.mint }],
+    queryFn: async () => {
+      if (!airdrop.mint) return null
+      return await getTokenMetadata(airdrop.mint, cluster)
+    },
+    enabled: !!airdrop.mint,
+  })
+
+  const { data: tokenPrice } = useQuery({
+    queryKey: [QUERY_KEYS.getTokenMetadata, { address: airdrop.mint }],
+    queryFn: async () => {
+      if (!airdrop.mint) return null
+      return await fetchTokenPrice(airdrop.mint)
+    },
+    enabled: !!airdrop.mint,
+  })
 
   const progress = calculateProgress(airdrop.totalAmountUnlocked, airdrop.maxTotalClaim)
 
@@ -39,7 +62,7 @@ export function AirdropCard({ airdrop, token }: AirdropCardProps) {
         <div className="flex items-center gap-2 mb-2">
           {token && (
             <div className="flex items-center gap-2">
-              <img src={token.logoURI || "/placeholder.svg"} alt={token.symbol} className="w-5 h-5 rounded-full" />
+              <img src={token.image || "/placeholder.svg"} alt={token.symbol} className="w-5 h-5 rounded-full" />
               <span className="font-medium">{token.symbol}</span>
             </div>
           )}
@@ -60,9 +83,9 @@ export function AirdropCard({ airdrop, token }: AirdropCardProps) {
             <span className="font-medium">
               {token ? formatTokenAmount(airdrop.totalAmountUnlocked, token.decimals) : airdrop.totalAmountUnlocked}
               {token && ` ${token.symbol}`}
-              {token && (
+              {token && tokenPrice && (
                 <span className="text-muted-foreground ml-1">
-                  ({formatUsdValue(airdrop.totalAmountUnlocked, token.decimals, token.price)})
+                  ({formatUsdValue(airdrop.totalAmountUnlocked, token.decimals, tokenPrice)})
                 </span>
               )}
             </span>

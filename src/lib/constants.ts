@@ -4,7 +4,8 @@ export const PUBLIC_STREAMFLOW_STAGING_API = "https://staging-api-public.streamf
 export const QUERY_KEYS = {
     getAirdrops: "getAirdrops",
     getAirdropById: "getAirdropById",
-    getClaimableAirdrop: "getClaimableAirdrop"
+    getClaimableAirdrop: "getClaimableAirdrop",
+    getTokenMetadata: "getTokenMetadata"
 }
 
 export const LAMPORTS_PER_SOL_DECIMALS = 9

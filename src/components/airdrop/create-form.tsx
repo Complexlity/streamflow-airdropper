@@ -45,7 +45,6 @@ export function CreateAirdropForm() {
   })
 
   const [recipients, setRecipients] = useState<Recipient[]>([])
-  const [csvFile, setCsvFile] = useState<File | null>(null)
   const [csvError, setCsvError] = useState<string | null>(null)
 
   // Replace useEffect with useQuery for fetching tokens
@@ -78,14 +77,13 @@ export function CreateAirdropForm() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    setCsvFile(file)
     setCsvError(null)
 
     try {
       const parsedRecipients = await parseCsv(file)
       setRecipients(parsedRecipients)
       toast.success(`Successfully parsed ${parsedRecipients.length} recipients`)
-    } catch (error) {
+    } catch {
       setCsvError("Failed to parse CSV file. Please check the format.")
       toast.error("Failed to parse CSV file")
     }
@@ -161,7 +159,7 @@ export function CreateAirdropForm() {
       const unlockPeriod =
         formData.unlockInterval === "daily" ? 86400 : formData.unlockInterval === "weekly" ? 604800 : 2592000
 
-
+      //@ts-expect-error: clawbackStartTs has a default values on the contract so does not have to be passed in
       const data: ICreateDistributorData = {
         root: airdropWithMerkleRoot.merkleRoot,
         mint: airdropWithMerkleRoot.mint,
