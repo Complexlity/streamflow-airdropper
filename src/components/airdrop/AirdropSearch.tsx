@@ -8,7 +8,10 @@ import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-export function AirdropSearch() {
+/**
+ * Search component for finding airdrops by ID
+ */
+export const AirdropSearch = () => {
   const [airdropId, setAirdropId] = useState("")
   const navigate = useNavigate()
 
