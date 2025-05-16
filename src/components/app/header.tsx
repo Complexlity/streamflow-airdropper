@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
 import { ThemeSelect } from '@/components/app/theme-select'
-import { ClusterButton, WalletButton } from '@/components/providers/solana-provider'
 import { Link, useLocation } from 'react-router'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 
 export function AppHeader({ links = [] }: { links: { label: string; path: string }[] }) {
   const { pathname } = useLocation()
@@ -42,8 +42,10 @@ export function AppHeader({ links = [] }: { links: { label: string; path: string
         </Button>
 
         <div className="hidden md:flex items-center gap-4">
-          <WalletButton size="sm" />
-          <ClusterButton size="sm" />
+              <WalletMultiButton
+            style={{ backgroundColor: '#F97316', color: 'white' }}/>
+          {/* <WalletButton size="sm" />
+          <ClusterButton size="sm" /> */}
           <ThemeSelect />
         </div>
 
@@ -64,8 +66,7 @@ export function AppHeader({ links = [] }: { links: { label: string; path: string
                 ))}
               </ul>
               <div className="flex flex-col gap-4">
-                <WalletButton />
-                <ClusterButton />
+                <WalletMultiButton  />
                 <ThemeSelect />
               </div>
             </div>
