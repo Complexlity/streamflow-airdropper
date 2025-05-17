@@ -1,17 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { prepareClaimInstructions } from '@/services/blockchain/streamflowService'
 import { QUERY_KEYS } from '@/config/constants'
 import { BN } from 'bn.js'
 import type { ClaimableAirdropItem, ClaimEligibilityData } from '@/types/airdrop'
+import type { Wallet } from '@solana/wallet-adapter-react'
 
 export const useClaimEligibility = (
   airdropId: string | undefined,
   claimantData: ClaimableAirdropItem | null | undefined,
+  wallet: Wallet | null,
+  walletAddress?: string,
 ) => {
-  const { wallet, publicKey } = useWallet()
-  const walletAddress = publicKey?.toBase58()
-
   return useQuery<ClaimEligibilityData>({
     queryKey: [QUERY_KEYS.getClaimEligibility, { airdropId, walletAddress }],
     queryFn: async () => {

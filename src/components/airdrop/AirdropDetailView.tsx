@@ -18,21 +18,39 @@ import { formatAddress, formatTokenAmount, formatUsdValue, formatDate } from '@/
 import { calculateProgress } from '@/utils/calculations'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { CopyButton } from '../ui/copy-button'
+import { handleApiError } from '@/utils/errors'
+import { useTransactionToast } from '@/hooks/useTransactionToast'
 
 export function AirdropDetailView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { publicKey } = useWallet()
+  const { publicKey, wallet } = useWallet()
   const walletAddress = publicKey?.toBase58()
+  const showTransactionToast = useTransactionToast()
 
   const { data: airdrop, isLoading: isLoadingAirdrop, error: airdropError } = useAirdropDetails(id)
 
   const { data: claimantData, isLoading: isLoadingClaimant } = useClaimantData(id, walletAddress)
 
-  const { data: eligibilityData, isLoading: isLoadingEligibility } = useClaimEligibility(id, claimantData)
+  const { data: eligibilityData, isLoading: isLoadingEligibility } = useClaimEligibility(
+    id,
+    claimantData,
+    wallet,
+    walletAddress,
+  )
+
   const userClaimableAmount = claimantData?.amountLocked || '0'
 
-  const { mutate: claimAirdrop, isPending: isClaimPending } = useClaimAirdrop()
+  const { mutate: claimAirdrop, isPending: isClaimPending } = useClaimAirdrop(wallet, {
+    onSuccess: (data) => {
+      if (data?.txId) {
+        showTransactionToast(data.txId)
+      }
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to claim airdrop')
+    },
+  })
 
   const handleClaim = () => {
     if (!id || !claimantData) return

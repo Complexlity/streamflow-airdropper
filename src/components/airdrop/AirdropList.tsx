@@ -5,14 +5,12 @@ import { useClaimableAirdrops } from '@/hooks/airdrop/useClaimableAirdrops'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { AirdropCard } from './AirdropCard'
 
-/**
- * Displays a list of airdrops with tabs for all and claimable airdrops
- */
 export const AirdropList = () => {
-  const { connected } = useWallet()
+  const { connected, publicKey } = useWallet()
+  const walletAddress = publicKey?.toBase58()
 
   const { data: allAirdrops, isLoading: isLoadingAllAirdrops } = useAllAirdrops()
-  const { data: claimableAirdrops, isLoading: isLoadingClaimableAirdrops } = useClaimableAirdrops()
+  const { data: claimableAirdrops, isLoading: isLoadingClaimableAirdrops } = useClaimableAirdrops(walletAddress)
 
   return (
     <Tabs defaultValue="all" className="w-full">

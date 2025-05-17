@@ -17,14 +17,28 @@ import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Calendar, Clock } from 'lucide-react'
 import { RecipientsUploader } from './RecipientsUploader'
+import { toast } from 'sonner'
+import { handleApiError } from '@/utils/errors'
+import { useTransactionToast } from '@/hooks/useTransactionToast'
 
-/**
- * Form for creating a new airdrop
- */
 export const CreateAirdropForm = () => {
   const navigate = useNavigate()
-  const { connected } = useWallet()
-  const { mutate: createAirdrop, isPending: isCreating } = useCreateAirdrop()
+  const { connected, wallet, publicKey } = useWallet()
+  const showTransactionToast = useTransactionToast()
+
+  const { mutate: createAirdrop, isPending: isCreating } = useCreateAirdrop(wallet, publicKey, {
+    onSuccess: (data) => {
+      if (data?.txId) {
+        showTransactionToast(data.txId)
+      }
+      if (data?.address) {
+        navigate(`/airdrop/${data.address}`)
+      }
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to create airdrop')
+    },
+  })
 
   const [formData, setFormData] = useState<AirdropFormData>({
     name: '',
@@ -53,6 +67,7 @@ export const CreateAirdropForm = () => {
     // Validate form data
     const validationError = validateAirdropForm(formData, recipients)
     if (validationError) {
+      toast.error(validationError)
       return
     }
 

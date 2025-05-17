@@ -1,15 +1,8 @@
 import { QUERY_KEYS } from '@/config/constants'
 import { getAirdropById, getClaimableAirdrops } from '@/services/api/airdropService'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { useQuery } from '@tanstack/react-query'
 
-/**
- * Hook for fetching claimable airdrops
- */
-export const useClaimableAirdrops = () => {
-  const { publicKey, connected } = useWallet()
-  const walletAddress = publicKey?.toBase58()
-
+export const useClaimableAirdrops = (walletAddress?: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.getClaimableAirdrop, walletAddress],
     queryFn: async () => {
@@ -26,6 +19,6 @@ export const useClaimableAirdrops = () => {
       )
       return details
     },
-    enabled: !!walletAddress && connected,
+    enabled: !!walletAddress,
   })
 }

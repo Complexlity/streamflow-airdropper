@@ -13,9 +13,6 @@ interface RecipientsUploaderProps {
   setError: (error: string | null) => void
 }
 
-/**
- * Component for uploading CSV file with recipients
- */
 export const RecipientsUploader = ({ recipients, setRecipients, error, setError }: RecipientsUploaderProps) => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

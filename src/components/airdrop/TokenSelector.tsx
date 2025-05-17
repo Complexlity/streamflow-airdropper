@@ -2,17 +2,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { useTokenBalances } from '@/hooks/token/useTokenBalances'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { env } from '@/config/env'
 
 interface TokenSelectorProps {
   value: string
   onChange: (value: string) => void
 }
 
-/**
- * Component for selecting a token from wallet balances
- */
 export const TokenSelector = ({ value, onChange }: TokenSelectorProps) => {
-  const { data: tokenBalances, isLoading } = useTokenBalances()
+  const { publicKey } = useWallet()
+  const walletAddress = publicKey?.toBase58()
+
+  const { data: tokenBalances, isLoading } = useTokenBalances(walletAddress)
 
   if (isLoading) {
     return (
@@ -34,11 +36,7 @@ export const TokenSelector = ({ value, onChange }: TokenSelectorProps) => {
           {/* SOL option */}
           <SelectItem value="native">
             <div className="flex items-center gap-2">
-              <img
-                src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png"
-                alt="SOL"
-                className="w-4 h-4 rounded-full"
-              />
+              <img src={env.solana.nativeTokenLogo || '/placeholder.svg'} alt="SOL" className="w-4 h-4 rounded-full" />
               <span>SOL - {tokenBalances ? tokenBalances.sol : 0}</span>
             </div>
           </SelectItem>

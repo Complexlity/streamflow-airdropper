@@ -1,15 +1,16 @@
 import { QUERY_KEYS } from '@/config/constants'
 import { claimAirdrop } from '@/services/blockchain/streamflowService'
-import { handleApiError } from '@/utils/errors'
-import { useWallet } from '@solana/wallet-adapter-react'
+import type { Wallet } from '@solana/wallet-adapter-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { BN } from 'bn.js'
-import { useTransactionToast as useToast } from '../useTransactionToast'
 
-export const useClaimAirdrop = () => {
-  const { wallet } = useWallet()
+interface ClaimAirdropOptions {
+  onSuccess?: (data: Awaited<ReturnType<typeof claimAirdrop>>, variables: unknown) => void
+  onError?: (error: unknown) => void
+}
+
+export const useClaimAirdrop = (wallet: Wallet | null, options: ClaimAirdropOptions = {}) => {
   const queryClient = useQueryClient()
-  const showTransactionToast = useToast()
 
   return useMutation({
     mutationFn: async ({
@@ -37,10 +38,6 @@ export const useClaimAirdrop = () => {
       return claimAirdrop(claimingData, wallet)
     },
     onSuccess: (data, variables) => {
-      if (data?.txId) {
-        showTransactionToast(data.txId)
-      }
-
       // Invalidate relevant queries
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.getClaimableAirdrop],
@@ -48,9 +45,17 @@ export const useClaimAirdrop = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.getAirdropById, variables.distributorAddress],
       })
+
+      // Call custom onSuccess if provided
+      if (options.onSuccess) {
+        options.onSuccess(data, variables)
+      }
     },
     onError: (error) => {
-      handleApiError(error, 'Failed to claim airdrop')
+      // Call custom onError if provided
+      if (options.onError) {
+        options.onError(error)
+      }
     },
   })
 }

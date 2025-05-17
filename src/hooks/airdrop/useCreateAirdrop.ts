@@ -1,16 +1,24 @@
 import { createAirdropMerkleRoot } from '@/services/api/airdropService'
 import { createDistributor } from '@/services/blockchain/streamflowService'
 import type { AirdropFormData, AirdropRecipient } from '@/types/airdrop'
-import { handleApiError } from '@/utils/errors'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { ICreateDistributorData } from '@streamflow/distributor/solana'
+import type { Wallet } from '@solana/wallet-adapter-react'
+import type { ICreateDistributorData } from '@streamflow/distributor/solana'
 import { useMutation } from '@tanstack/react-query'
 import { BN } from 'bn.js'
+import type { PublicKey } from '@solana/web3.js'
 import { useNavigate } from 'react-router'
 import { useTransactionToast as useToast } from '../useTransactionToast'
 
-export const useCreateAirdrop = () => {
-  const { wallet, publicKey } = useWallet()
+interface CreateAirdropOptions {
+  onSuccess?: (data: Awaited<ReturnType<typeof createDistributor>> & { address: string }) => void
+  onError?: (error: unknown) => void
+}
+
+export const useCreateAirdrop = (
+  wallet: Wallet | null,
+  publicKey: PublicKey | null,
+  options: CreateAirdropOptions = {},
+) => {
   const showTransactionToast = useToast()
   const navigate = useNavigate()
 
@@ -77,9 +85,15 @@ export const useCreateAirdrop = () => {
       if (data?.address) {
         navigate(`/airdrop/${data.address}`)
       }
+
+      if (options.onSuccess) {
+        options.onSuccess(data)
+      }
     },
     onError: (error) => {
-      handleApiError(error, 'Failed to create airdrop')
+      if (options.onError) {
+        options.onError(error)
+      }
     },
   })
 }
