@@ -1,6 +1,6 @@
-import { CreateAirdropForm } from "@/components/airdrop/CreateAirdropForm"
+import { CreateAirdropForm } from '@/components/airdrop/CreateAirdropForm'
 
-function CreateAirdropPage () { 
+function CreateAirdropPage() {
   return (
     <div className="container mx-auto py-8">
       <CreateAirdropForm />

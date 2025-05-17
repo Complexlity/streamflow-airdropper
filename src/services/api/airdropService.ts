@@ -1,5 +1,5 @@
-import axios from "axios"
-import { env } from "@/config/env"
+import axios from 'axios'
+import { env } from '@/config/env'
 import type {
   AirdropByIDRequest,
   AirdropCreateData,
@@ -8,14 +8,14 @@ import type {
   ClaimableAirdropItem,
   ClaimableAirdropResult,
   CsvRecipients,
-} from "@/types/airdrop"
-import { ApiError } from "@/types/error"
+} from '@/types/airdrop'
+import { ApiError } from '@/types/error'
 
 // Create axios instance with common headers
 const axiosStreamflow = axios.create({
   headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
   },
 })
 
@@ -26,16 +26,16 @@ const axiosStreamflow = axios.create({
  */
 export const getAirdropById = async (distributorId: string): Promise<AirdropCreateData> => {
   try {
-    const response = await axiosStreamflow.get<AirdropByIDRequest[]>(`${env.api.proxyServer}/airdrops/${distributorId}`);
+    const response = await axiosStreamflow.get<AirdropByIDRequest[]>(`${env.api.proxyServer}/airdrops/${distributorId}`)
 
     if (!response.data || response.data.length === 0) {
-      throw new ApiError("Airdrop not found", "not_found")
+      throw new ApiError('Airdrop not found', 'not_found')
     }
 
     const responseData = response.data[0]
     const data: Partial<AirdropCreateData> = {}
 
-    data.type = responseData.totalAmountLocked !== "0" ? "Vested" : "Instant"
+    data.type = responseData.totalAmountLocked !== '0' ? 'Vested' : 'Instant'
 
     const maxTotal = BigInt(responseData.maxTotalClaim)
     const locked = BigInt(responseData.totalAmountLocked)
@@ -47,11 +47,11 @@ export const getAirdropById = async (distributorId: string): Promise<AirdropCrea
       ...data,
     }
   } catch (error) {
-    console.error("Error fetching airdrop:", error)
+    console.error('Error fetching airdrop:', error)
     if (error instanceof ApiError) {
       throw error
     }
-    throw new ApiError("Failed to fetch airdrop data", "api_error", error)
+    throw new ApiError('Failed to fetch airdrop data', 'api_error', error)
   }
 }
 
@@ -64,7 +64,7 @@ export const getAirdropById = async (distributorId: string): Promise<AirdropCrea
 export const getAllAirdrops = async (limit = 10, offset = 0): Promise<AirdropSearchResultItem[]> => {
   try {
     const response = await axiosStreamflow.post<AirdropSearchResult>(`${env.api.proxyServer}/airdrops/search`, {
-      actor: "",
+      actor: '',
       limit,
       offset,
       filters: {
@@ -73,12 +73,12 @@ export const getAllAirdrops = async (limit = 10, offset = 0): Promise<AirdropSea
           isActive: true,
         },
       },
-      sorters: [{ by: "id", order: "desc" }],
-    });
-    return response.data.items;
+      sorters: [{ by: 'id', order: 'desc' }],
+    })
+    return response.data.items
   } catch (error) {
-    console.error("Error fetching all airdrops:", error)
-    throw new ApiError("Failed to fetch airdrops data", "api_error", error)
+    console.error('Error fetching all airdrops:', error)
+    throw new ApiError('Failed to fetch airdrops data', 'api_error', error)
   }
 }
 
@@ -88,7 +88,7 @@ export const getAllAirdrops = async (limit = 10, offset = 0): Promise<AirdropSea
  * @param limit Number of airdrops to fetch
  * @returns Claimable airdrops
  */
-export const getClaimableAirdrops = async (address: string, limit = 100): Promise<ClaimableAirdropResult["items"]> => {
+export const getClaimableAirdrops = async (address: string, limit = 100): Promise<ClaimableAirdropResult['items']> => {
   try {
     const response = await axiosStreamflow.get<ClaimableAirdropResult>(
       `${env.api.proxyServer}/airdrops/claimable/${address}`,
@@ -98,12 +98,12 @@ export const getClaimableAirdrops = async (address: string, limit = 100): Promis
           skimZeroValued: true,
         },
       },
-    );
+    )
 
     return response.data.items
   } catch (error) {
-    console.error("Error fetching claimable airdrops:", error)
-    throw new ApiError("Failed to fetch claimable airdrops", "api_error", error)
+    console.error('Error fetching claimable airdrops:', error)
+    throw new ApiError('Failed to fetch claimable airdrops', 'api_error', error)
   }
 }
 
@@ -124,8 +124,8 @@ export const getClaimantByAddress = async (
 
     return response.data
   } catch (error) {
-    console.error("Error fetching claimant from server:", error)
-    throw new ApiError("Failed to fetch claimant data", "api_error", error)
+    console.error('Error fetching claimant from server:', error)
+    throw new ApiError('Failed to fetch claimant data', 'api_error', error)
   }
 }
 
@@ -168,15 +168,15 @@ export const createAirdropMerkleRoot = async ({
       },
       {
         headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
       },
     )
 
     return response.data
   } catch (error) {
-    console.error("Error creating airdrop merkle root:", error)
-    throw new ApiError("Failed to create airdrop merkle root", "api_error", error)
+    console.error('Error creating airdrop merkle root:', error)
+    throw new ApiError('Failed to create airdrop merkle root', 'api_error', error)
   }
 }

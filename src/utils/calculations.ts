@@ -1,4 +1,4 @@
-import type { AirdropDetail } from "@/types"
+import type { AirdropDetail } from '@/types'
 
 /**
  * Calculate progress percentage
@@ -7,7 +7,7 @@ import type { AirdropDetail } from "@/types"
  * @returns Progress percentage (0-100)
  */
 export const calculateProgress = (claimed: string, total: string): number => {
-  if (total === "0") return 0
+  if (total === '0') return 0
   return (Number(claimed) / Number(total)) * 100
 }
 
@@ -38,7 +38,7 @@ export const calculateUnlockedAmount = (airdrop: AirdropDetail): string => {
   const end = airdrop.endVestingTs
   const total = BigInt(airdrop.userClaimableAmount)
 
-  if (now <= start) return "0"
+  if (now <= start) return '0'
   if (now >= end) return airdrop.userClaimableAmount
 
   const progress = (now - start) / (end - start)

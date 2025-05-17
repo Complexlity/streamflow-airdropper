@@ -10,11 +10,11 @@ export const formatTokenAmount = (amount: string, decimals: number): string => {
   const integerPart = value / divisor
   const fractionalPart = value % divisor
 
-  let fractionalStr = fractionalPart.toString().padStart(decimals, "0")
+  let fractionalStr = fractionalPart.toString().padStart(decimals, '0')
   // Trim trailing zeros
-  fractionalStr = fractionalStr.replace(/0+$/, "")
+  fractionalStr = fractionalStr.replace(/0+$/, '')
 
-  if (fractionalStr === "") {
+  if (fractionalStr === '') {
     return integerPart.toString()
   }
 
@@ -32,9 +32,9 @@ export const formatUsdValue = (tokenAmount: string, decimals: number, price: num
   const amount = Number.parseFloat(formatTokenAmount(tokenAmount, decimals))
   const usdValue = amount * price
 
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(usdValue)
@@ -55,6 +55,6 @@ export const formatDate = (timestamp: number): string => {
  * @returns Truncated address
  */
 export const formatAddress = (address: string): string => {
-  if (!address) return ""
+  if (!address) return ''
   return `${address.slice(0, 4)}...${address.slice(-4)}`
 }

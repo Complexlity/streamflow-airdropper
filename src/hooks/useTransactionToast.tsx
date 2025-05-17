@@ -1,9 +1,9 @@
-import { toast } from "sonner"
-import { type GetExplorerLinkArgs, getExplorerLink } from "gill"
+import { toast } from 'sonner'
+import { type GetExplorerLinkArgs, getExplorerLink } from 'gill'
 
 export function useTransactionToast() {
   return (signature: string) => {
-    toast.success("Transaction sent", {
+    toast.success('Transaction sent', {
       description: <ExplorerLink transaction={signature} label="View Transaction" />,
     })
   }
@@ -11,7 +11,7 @@ export function useTransactionToast() {
 
 export function ExplorerLink({
   className,
-  label = "",
+  label = '',
   ...link
 }: GetExplorerLinkArgs & {
   className?: string

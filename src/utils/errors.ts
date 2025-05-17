@@ -1,14 +1,14 @@
-import { toast } from "sonner"
+import { toast } from 'sonner'
 
 /**
  * Handle API errors with consistent messaging
  * @param error Error object
  * @param fallbackMessage Fallback message if error is not ApiError
  */
-export const handleApiError = (error: unknown, fallbackMessage = "An unexpected error occurred"): void => {
-  console.error("API Error:", error)
+export const handleApiError = (error: unknown, fallbackMessage = 'An unexpected error occurred'): void => {
+  console.error('API Error:', error)
 
-  if (error && typeof error === "object" && "message" in error && error.message && typeof error.message === "string") {
+  if (error && typeof error === 'object' && 'message' in error && error.message && typeof error.message === 'string') {
     toast.error(error.message)
     return
   }

@@ -1,14 +1,12 @@
-"use client"
-
-import { useNavigate } from "react-router"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { useTokenMetadata, useTokenPrice } from "@/hooks/token/useTokenMetadata"
-import { formatAddress, formatTokenAmount, formatUsdValue } from "@/utils/format"
-import { calculateProgress } from "@/utils/calculations"
-import type { AirdropSearchResultItem } from "@/types/airdrop"
-import { TokenMetadata } from "@/types"
+import { useNavigate } from 'react-router'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { useTokenMetadata, useTokenPrice } from '@/hooks/token/useTokenMetadata'
+import { formatAddress, formatTokenAmount, formatUsdValue } from '@/utils/format'
+import { calculateProgress } from '@/utils/calculations'
+import type { AirdropSearchResultItem } from '@/types/airdrop'
+import { TokenMetadata } from '@/types'
 
 interface AirdropCardProps {
   airdrop: AirdropSearchResultItem
@@ -35,7 +33,9 @@ export const AirdropCard = ({ airdrop }: AirdropCardProps) => {
             <CardTitle className="text-lg">{airdrop.name}</CardTitle>
             <p className="text-sm text-muted-foreground">ID: {formatAddress(airdrop.address)}</p>
           </div>
-          <Badge variant={airdrop.totalAmountLocked == "0" ? "default" : "secondary"}>{airdrop.totalAmountLocked !== "0" ? "Instant" : "Vested"}</Badge>
+          <Badge variant={airdrop.totalAmountLocked == '0' ? 'default' : 'secondary'}>
+            {airdrop.totalAmountLocked !== '0' ? 'Instant' : 'Vested'}
+          </Badge>
         </div>
       </CardHeader>
 
@@ -64,7 +64,7 @@ function TokenDisplay({ token, mint, isLoading }: TokenDisplayProps) {
     <div className="flex items-center gap-2 mb-2">
       {token ? (
         <div className="flex items-center gap-2">
-          <img src={token.image || "/placeholder.svg"} alt={token.symbol} className="w-5 h-5 rounded-full" />
+          <img src={token.image || '/placeholder.svg'} alt={token.symbol} className="w-5 h-5 rounded-full" />
           <span className="font-medium">{token.symbol}</span>
         </div>
       ) : (

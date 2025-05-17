@@ -1,11 +1,9 @@
-"use client"
-
-import { useState } from "react"
-import { NavLink, useLocation } from "react-router"
-import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
-import { ThemeSelect } from "./ThemeSelect"
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui"
+import { useState } from 'react'
+import { NavLink, useLocation } from 'react-router'
+import { Button } from '@/components/ui/button'
+import { Menu, X } from 'lucide-react'
+import { ThemeSelect } from './ThemeSelect'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 
 interface AppHeaderProps {
   links: { label: string; path: string }[]
@@ -19,7 +17,7 @@ export const AppHeader = ({ links = [] }: AppHeaderProps) => {
   const [showMenu, setShowMenu] = useState(false)
 
   const isActive = (path: string) => {
-    return path === "/" ? pathname === "/" : pathname.startsWith(path)
+    return path === '/' ? pathname === '/' : pathname.startsWith(path)
   }
 
   return (
@@ -36,13 +34,13 @@ export const AppHeader = ({ links = [] }: AppHeaderProps) => {
                   <NavLink
                     to={path}
                     style={({ isActive, isPending, isTransitioning }) => ({
-                      fontWeight: isActive ? "bold" : "",
+                      fontWeight: isActive ? 'bold' : '',
                       color: isPending
-                        ? "red"
+                        ? 'red'
                         : isActive
-                          ? "" // text-neutral-500
-                          : "rgb(115 115 115)",
-                      viewTransitionName: isTransitioning ? "slide" : "",
+                          ? ''
+                          : 'rgb(115 115 115)',
+                      viewTransitionName: isTransitioning ? 'slide' : '',
                     })}
                     className="hover:text-neutral-500 dark:hover:text-white"
                   >
@@ -70,7 +68,7 @@ export const AppHeader = ({ links = [] }: AppHeaderProps) => {
                 {links.map(({ label, path }) => (
                   <li key={path}>
                     <NavLink
-                      className={`hover:text-neutral-500 dark:hover:text-white ${isActive(path) ? "text-neutral-500 dark:text-white" : ""}`}
+                      className={`hover:text-neutral-500 dark:hover:text-white ${isActive(path) ? 'text-neutral-500 dark:text-white' : ''}`}
                       to={path}
                     >
                       {label}

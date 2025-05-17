@@ -1,8 +1,8 @@
-import axios from "axios"
-import { env } from "@/config/env"
-import { type PriceResult, type TokenMetadata } from "@/types/token"
-import type { ICluster } from "@streamflow/common"
-import { ApiError } from "@/types/error"
+import axios from 'axios'
+import { env } from '@/config/env'
+import { type PriceResult, type TokenMetadata } from '@/types/token'
+import type { ICluster } from '@streamflow/common'
+import { ApiError } from '@/types/error'
 
 /**
  * Get token metadata
@@ -23,23 +23,23 @@ export const getTokenMetadata = async (
       },
       {
         headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
       },
     )
 
     if (!response.data || !response.data[mint]) {
-      throw new ApiError(`Token metadata not found for ${mint}`, "not_found")
+      throw new ApiError(`Token metadata not found for ${mint}`, 'not_found')
     }
 
     return response.data[mint] as TokenMetadata
   } catch (error) {
-    console.error("Error fetching token metadata:", error)
+    console.error('Error fetching token metadata:', error)
     if (error instanceof ApiError) {
       throw error
     }
-    throw new ApiError("Failed to fetch token metadata", "api_error", error)
+    throw new ApiError('Failed to fetch token metadata', 'api_error', error)
   }
 }
 
@@ -49,7 +49,7 @@ export const getTokenMetadata = async (
  * @param cluster Solana cluster
  * @returns Token price in USD
  */
-export const getTokenPrice = async (tokenAddress: string, cluster = "devnet"): Promise<number> => {
+export const getTokenPrice = async (tokenAddress: string, cluster = 'devnet'): Promise<number> => {
   try {
     const endpoint = `${env.api.proxyServer}/price?ids=${tokenAddress}&cluster=${cluster}`
     const response = await fetch(endpoint)
@@ -61,7 +61,7 @@ export const getTokenPrice = async (tokenAddress: string, cluster = "devnet"): P
     const data = (await response.json()) as PriceResult
     return data?.data?.[tokenAddress]?.value ?? 0
   } catch (error) {
-    console.error("Error fetching token price:", error)
+    console.error('Error fetching token price:', error)
     return 0 // Return 0 as fallback for price errors
   }
 }

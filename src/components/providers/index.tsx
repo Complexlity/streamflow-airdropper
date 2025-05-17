@@ -7,9 +7,7 @@ export function AppProviders({ children }: Readonly<{ children: React.ReactNode 
   return (
     <ReactQueryProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <AppWalletProvider>
-          {children}
-        </AppWalletProvider>
+        <AppWalletProvider>{children}</AppWalletProvider>
       </ThemeProvider>
     </ReactQueryProvider>
   )

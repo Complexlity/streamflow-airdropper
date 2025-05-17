@@ -12,7 +12,7 @@ export const AppFooter = () => {
       >
         Streamflow Airdropper
       </a>
-      {" • "}
+      {' • '}
       <span>Built with Solana</span>
     </footer>
   )

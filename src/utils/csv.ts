@@ -1,4 +1,4 @@
-import type { AirdropRecipient } from "@/types"
+import type { AirdropRecipient } from '@/types'
 
 /**
  * Parse CSV file with recipients
@@ -7,10 +7,10 @@ import type { AirdropRecipient } from "@/types"
  */
 export const parseCsv = async (file: File): Promise<AirdropRecipient[]> => {
   const text = await file.text()
-  const lines = text.split("\n")
+  const lines = text.split('\n')
 
   // Check if first line is a header
-  const hasHeader = lines[0].toLowerCase().includes("address") || lines[0].toLowerCase().includes("amount")
+  const hasHeader = lines[0].toLowerCase().includes('address') || lines[0].toLowerCase().includes('amount')
   const startIndex = hasHeader ? 1 : 0
 
   const recipients: AirdropRecipient[] = []
@@ -19,7 +19,7 @@ export const parseCsv = async (file: File): Promise<AirdropRecipient[]> => {
     const line = lines[i].trim()
     if (!line) continue
 
-    const [address, amount] = line.split(",").map((item) => item.trim())
+    const [address, amount] = line.split(',').map((item) => item.trim())
 
     if (!address || !amount) {
       throw new Error(`Invalid format at line ${i + 1}: Missing address or amount`)

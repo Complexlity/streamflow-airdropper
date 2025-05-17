@@ -1,7 +1,7 @@
-import type { ReactNode } from "react"
-import { Toaster } from "sonner"
-import { AppFooter } from "./AppFooter"
-import { AppHeader } from "./AppHeader"
+import type { ReactNode } from 'react'
+import { Toaster } from 'sonner'
+import { AppFooter } from './AppFooter'
+import { AppHeader } from './AppHeader'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -12,8 +12,8 @@ interface AppLayoutProps {
  */
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const links = [
-    { label: "Home", path: "/" },
-    { label: "Create", path: "/create" },
+    { label: 'Home', path: '/' },
+    { label: 'Create', path: '/create' },
   ]
 
   return (

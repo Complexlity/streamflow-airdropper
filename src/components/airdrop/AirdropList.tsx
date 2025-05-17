@@ -1,9 +1,9 @@
-import { Skeleton } from "@/components/ui/skeleton"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useAllAirdrops } from "@/hooks/airdrop/useAllAirdrops"
-import { useClaimableAirdrops } from "@/hooks/airdrop/useClaimableAirdrops"
-import { useWallet } from "@solana/wallet-adapter-react"
-import { AirdropCard } from "./AirdropCard"
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useAllAirdrops } from '@/hooks/airdrop/useAllAirdrops'
+import { useClaimableAirdrops } from '@/hooks/airdrop/useClaimableAirdrops'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { AirdropCard } from './AirdropCard'
 
 /**
  * Displays a list of airdrops with tabs for all and claimable airdrops
@@ -53,10 +53,7 @@ export const AirdropList = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {claimableAirdrops.map((airdrop) => (
-              <AirdropCard
-                key={airdrop.distributorAddress}
-                airdrop={airdrop}
-              />
+              <AirdropCard key={airdrop.distributorAddress} airdrop={airdrop} />
             ))}
           </div>
         )}

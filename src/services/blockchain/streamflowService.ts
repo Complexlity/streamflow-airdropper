@@ -1,10 +1,10 @@
-import { env } from "@/config/env"
-import { ApiError } from "@/types/error"
-import type { Wallet } from "@solana/wallet-adapter-react"
-import { clusterApiUrl } from "@solana/web3.js"
-import { StreamflowDistributorSolana } from "@streamflow/distributor"
-import type { ICreateDistributorData, IGetClaimData } from "@streamflow/distributor/solana"
-import BN from "bn.js"
+import { env } from '@/config/env'
+import { ApiError } from '@/types/error'
+import type { Wallet } from '@solana/wallet-adapter-react'
+import { clusterApiUrl } from '@solana/web3.js'
+import { StreamflowDistributorSolana } from '@streamflow/distributor'
+import type { ICreateDistributorData, IGetClaimData } from '@streamflow/distributor/solana'
+import BN from 'bn.js'
 
 // Create distributor client
 const distributorClient = new StreamflowDistributorSolana.SolanaDistributorClient({
@@ -27,8 +27,8 @@ export const createDistributor = async (data: ICreateDistributorData, wallet: Wa
 
     return result
   } catch (error) {
-    console.error("Error creating distribution:", error)
-    throw new ApiError("Failed to create distribution", "streamflow_error", error)
+    console.error('Error creating distribution:', error)
+    throw new ApiError('Failed to create distribution', 'streamflow_error', error)
   }
 }
 
@@ -55,8 +55,8 @@ export const claimAirdrop = async (
 
     return result
   } catch (error) {
-    console.error("Error claiming airdrop:", error)
-    throw new ApiError("Failed to claim airdrop", "streamflow_error", error)
+    console.error('Error claiming airdrop:', error)
+    throw new ApiError('Failed to claim airdrop', 'streamflow_error', error)
   }
 }
 
@@ -76,19 +76,18 @@ export const prepareClaimInstructions = async (
   wallet: Wallet,
 ) => {
   try {
-
     return await distributorClient.prepareClaimInstructions(claimData, {
       // @ts-expect-error: The adapter type is compatible but TypeScript doesn't recognize it
       invoker: wallet.adapter,
     })
   } catch (error) {
     // This might be a normal case where user is not eligible
-    if (error && typeof error === "object" && "message" in error && error.message === "invalid account discriminator") {
+    if (error && typeof error === 'object' && 'message' in error && error.message === 'invalid account discriminator') {
       return null
     }
 
-    console.error("Error preparing claim instructions:", error)
-    throw new ApiError("Failed to prepare claim instructions", "streamflow_error", error)
+    console.error('Error preparing claim instructions:', error)
+    throw new ApiError('Failed to prepare claim instructions', 'streamflow_error', error)
   }
 }
 
@@ -107,7 +106,7 @@ export const getClaimStatus = async (distributorId: string, claimantAddress: str
 
     return await distributorClient.getClaims([data])
   } catch (error) {
-    console.error("Error getting claim status:", error)
-    throw new ApiError("Failed to get claim status", "streamflow_error", error)
+    console.error('Error getting claim status:', error)
+    throw new ApiError('Failed to get claim status', 'streamflow_error', error)
   }
 }

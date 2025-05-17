@@ -1,4 +1,4 @@
-import { AirdropDetailView } from "@/components/airdrop/AirdropDetailView"
+import { AirdropDetailView } from '@/components/airdrop/AirdropDetailView'
 
 function AirdropDetailPage() {
   return (

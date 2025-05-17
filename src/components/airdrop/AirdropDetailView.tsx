@@ -1,25 +1,23 @@
-"use client"
-
-import { useParams, useNavigate } from "react-router"
-import { AlertCircle, ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { useAirdropDetails } from "@/hooks/airdrop/useAirdropDetails"
-import { useClaimantData } from "@/hooks/airdrop/useClaimant"
-import { useClaimEligibility } from "@/hooks/airdrop/useClaimEligibility"
-import { useClaimAirdrop } from "@/hooks/airdrop/useClaimAirdrop"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle } from "lucide-react"
-import type { AirdropCreateData, ClaimableAirdropItem, ClaimEligibilityData } from "@/types/airdrop"
-import { useTokenMetadata, useTokenPrice } from "@/hooks/token/useTokenMetadata"
-import { Progress } from "@/components/ui/progress"
-import { Calendar, Users } from "lucide-react"
-import { formatAddress, formatTokenAmount, formatUsdValue, formatDate } from "@/utils/format"
-import { calculateProgress } from "@/utils/calculations"
-import { useWallet } from "@solana/wallet-adapter-react"
-import { CopyButton } from "../ui/copy-button"
+import { useParams, useNavigate } from 'react-router'
+import { AlertCircle, ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useAirdropDetails } from '@/hooks/airdrop/useAirdropDetails'
+import { useClaimantData } from '@/hooks/airdrop/useClaimant'
+import { useClaimEligibility } from '@/hooks/airdrop/useClaimEligibility'
+import { useClaimAirdrop } from '@/hooks/airdrop/useClaimAirdrop'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CheckCircle } from 'lucide-react'
+import type { AirdropCreateData, ClaimableAirdropItem, ClaimEligibilityData } from '@/types/airdrop'
+import { useTokenMetadata, useTokenPrice } from '@/hooks/token/useTokenMetadata'
+import { Progress } from '@/components/ui/progress'
+import { Calendar, Users } from 'lucide-react'
+import { formatAddress, formatTokenAmount, formatUsdValue, formatDate } from '@/utils/format'
+import { calculateProgress } from '@/utils/calculations'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { CopyButton } from '../ui/copy-button'
 
 export function AirdropDetailView() {
   const { id } = useParams<{ id: string }>()
@@ -32,7 +30,7 @@ export function AirdropDetailView() {
   const { data: claimantData, isLoading: isLoadingClaimant } = useClaimantData(id, walletAddress)
 
   const { data: eligibilityData, isLoading: isLoadingEligibility } = useClaimEligibility(id, claimantData)
-  const userClaimableAmount = claimantData?.amountLocked || "0"
+  const userClaimableAmount = claimantData?.amountLocked || '0'
 
   const { mutate: claimAirdrop, isPending: isClaimPending } = useClaimAirdrop()
 
@@ -51,7 +49,7 @@ export function AirdropDetailView() {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => navigate("/")}>
+          <Button variant="outline" size="icon" onClick={() => navigate('/')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <Skeleton className="h-10 w-64" />
@@ -64,7 +62,7 @@ export function AirdropDetailView() {
   if (airdropError || !airdrop) {
     return (
       <div className="space-y-4">
-        <Button variant="outline" onClick={() => navigate("/")}>
+        <Button variant="outline" onClick={() => navigate('/')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
         </Button>
@@ -73,9 +71,9 @@ export function AirdropDetailView() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {airdropError instanceof Error ? airdropError.message : "Airdrop not found"}
+            {airdropError instanceof Error ? airdropError.message : 'Airdrop not found'}
             <div className="mt-4">
-              <Button onClick={() => navigate("/")}>Go to Home</Button>
+              <Button onClick={() => navigate('/')}>Go to Home</Button>
             </div>
           </AlertDescription>
         </Alert>
@@ -87,19 +85,22 @@ export function AirdropDetailView() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => navigate("/")}>
+          <Button variant="outline" size="icon" onClick={() => navigate('/')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-2xl font-bold">{airdrop.name}</h1>
-          <Badge variant={airdrop.isActive ? "default" : "secondary"}>{airdrop.isActive ? "Active" : "Inactive"}</Badge>
-          <Badge variant="outline">{airdrop.type || "Instant"}</Badge>
+          <Badge variant={airdrop.isActive ? 'default' : 'secondary'}>{airdrop.isActive ? 'Active' : 'Inactive'}</Badge>
+          <Badge variant="outline">{airdrop.type || 'Instant'}</Badge>
         </div>
 
-        {eligibilityData?.userEligible && airdrop.isActive && !eligibilityData.userClaimed && !!Number(userClaimableAmount) && (
-          <Button onClick={handleClaim} disabled={isClaimPending} className="w-full sm:w-auto">
-            {isClaimPending ? "Claiming..." : "Claim Tokens"}
-          </Button>
-        )}
+        {eligibilityData?.userEligible &&
+          airdrop.isActive &&
+          !eligibilityData.userClaimed &&
+          !!Number(userClaimableAmount) && (
+            <Button onClick={handleClaim} disabled={isClaimPending} className="w-full sm:w-auto">
+              {isClaimPending ? 'Claiming...' : 'Claim Tokens'}
+            </Button>
+          )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -119,7 +120,6 @@ interface AirdropInfoCardProps {
   airdrop: AirdropCreateData
 }
 
-
 function AirdropInfoCard({ airdrop }: AirdropInfoCardProps) {
   const { data: token } = useTokenMetadata(airdrop.mint)
   const { data: tokenPrice } = useTokenPrice(airdrop.mint)
@@ -128,23 +128,24 @@ function AirdropInfoCard({ airdrop }: AirdropInfoCardProps) {
   const tokenDecimals = token?.decimals || airdrop.tokenDecimals || 9
 
   const totalRecipients = Number(airdrop.maxNumNodes)
-  const claimedRecipients = totalRecipients > 0
-    ? Math.round((Number(airdrop.totalAmountUnlocked) / Number(airdrop.maxTotalClaim)) * totalRecipients)
-    : 0
-
+  const claimedRecipients =
+    totalRecipients > 0
+      ? Math.round((Number(airdrop.totalAmountUnlocked) / Number(airdrop.maxTotalClaim)) * totalRecipients)
+      : 0
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Airdrop Details</CardTitle>
-        <CardDescription>ID: {formatAddress(airdrop.address)}
+        <CardDescription>
+          ID: {formatAddress(airdrop.address)}
           <CopyButton text={airdrop.address} />
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-2">
           <span className="font-medium">
-            {airdrop.name} ({token?.symbol || airdrop.tokenSymbol || "????"})
+            {airdrop.name} ({token?.symbol || airdrop.tokenSymbol || '????'})
           </span>
         </div>
 
@@ -178,12 +179,15 @@ function AirdropInfoCard({ airdrop }: AirdropInfoCardProps) {
             <p className="font-medium flex items-center gap-2">
               <Users className="h-4 w-4 text-muted-foreground" />
 
-              {totalRecipients}</p>
+              {totalRecipients}
+            </p>
           </div>
 
           <div>
             <p className="text-sm text-muted-foreground">Claimed Recipients</p>
-            <p className="font-medium">{claimedRecipients} / {totalRecipients}</p>
+            <p className="font-medium">
+              {claimedRecipients} / {totalRecipients}
+            </p>
           </div>
 
           <div>
@@ -204,8 +208,8 @@ function AirdropInfoCard({ airdrop }: AirdropInfoCardProps) {
           <div>
             <p className="text-sm text-muted-foreground">Status</p>
             <div className="flex gap-2">
-              <Badge variant={airdrop.isOnChain ? "outline" : "secondary"}>
-                {airdrop.isOnChain ? "On-Chain" : "Off-Chain"}
+              <Badge variant={airdrop.isOnChain ? 'outline' : 'secondary'}>
+                {airdrop.isOnChain ? 'On-Chain' : 'Off-Chain'}
               </Badge>
               {airdrop.isVerified && (
                 <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
@@ -250,7 +254,7 @@ function UserAllocationCard({ airdrop, claimantData, eligibilityData, isLoading 
   const { data: tokenPrice } = useTokenPrice(airdrop.mint)
 
   const tokenDecimals = token?.decimals || airdrop.tokenDecimals || 9
-  const userClaimableAmount = claimantData?.amountLocked || "0"
+  const userClaimableAmount = claimantData?.amountLocked || '0'
 
   const { userEligible, userClaimed } = eligibilityData || { userEligible: false, userClaimed: false }
 
@@ -263,9 +267,9 @@ function UserAllocationCard({ airdrop, claimantData, eligibilityData, isLoading 
             ? "Checking if you're eligible to claim..."
             : userEligible
               ? userClaimed
-                ? "You have already claimed this airdrop"
-                : "You are eligible for this airdrop"
-              : "You are not eligible for this airdrop"}
+                ? 'You have already claimed this airdrop'
+                : 'You are eligible for this airdrop'
+              : 'You are not eligible for this airdrop'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

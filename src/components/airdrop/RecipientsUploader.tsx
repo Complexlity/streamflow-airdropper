@@ -1,12 +1,10 @@
-"use client"
+import type React from 'react'
 
-import type React from "react"
-
-import { Upload, Users } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import type { AirdropRecipient } from "@/types/airdrop"
-import { parseCsv } from "@/utils/csv"
-import { toast } from "sonner"
+import { Upload, Users } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import type { AirdropRecipient } from '@/types/airdrop'
+import { parseCsv } from '@/utils/csv'
+import { toast } from 'sonner'
 
 interface RecipientsUploaderProps {
   recipients: AirdropRecipient[]
@@ -30,7 +28,7 @@ export const RecipientsUploader = ({ recipients, setRecipients, error, setError 
       setRecipients(parsedRecipients)
       toast.success(`Successfully parsed ${parsedRecipients.length} recipients`)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to parse CSV file"
+      const errorMessage = err instanceof Error ? err.message : 'Failed to parse CSV file'
       setError(errorMessage)
       toast.error(errorMessage)
     }

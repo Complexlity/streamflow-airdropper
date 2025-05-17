@@ -1,12 +1,11 @@
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token"
-import { env } from "@/config/env"
-import { type WalletTokenBalances } from "@/types/token"
-import { getTokenMetadata } from "@/services/api/tokenService"
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
+import { env } from '@/config/env'
+import { type WalletTokenBalances } from '@/types/token'
+import { getTokenMetadata } from '@/services/api/tokenService'
 
 // Create connection instance
-export const connection = new Connection(env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster), "confirmed")
-
+export const connection = new Connection(env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster), 'confirmed')
 
 /**
  * Get token balances for a wallet
@@ -26,7 +25,9 @@ export const getTokenBalances = async (address: string): Promise<WalletTokenBala
       programId: TOKEN_PROGRAM_ID,
     })
 
-    const filteredTokenAccounts = tokenAccounts.value.filter(({ account }) => Number(account.data.parsed.info.tokenAmount.uiAmount) > 0)
+    const filteredTokenAccounts = tokenAccounts.value.filter(
+      ({ account }) => Number(account.data.parsed.info.tokenAmount.uiAmount) > 0,
+    )
 
     // Process token accounts
     const tokenPromises = filteredTokenAccounts.map(async ({ account }) => {
@@ -46,14 +47,14 @@ export const getTokenBalances = async (address: string): Promise<WalletTokenBala
           image: metadata.image,
         }
       } catch (error) {
-        console.error("Error fetching token metadata:", error)
+        console.error('Error fetching token metadata:', error)
         return {
           mint: mintAddress,
           amount,
-          name: "Unknown Token",
+          name: 'Unknown Token',
           symbol: mintAddress.slice(0, 4),
           decimals: account.data.parsed.info.tokenAmount.decimals,
-          image: "/placeholder.svg",
+          image: '/placeholder.svg',
         }
       }
     })
@@ -65,7 +66,7 @@ export const getTokenBalances = async (address: string): Promise<WalletTokenBala
       tokens,
     }
   } catch (error) {
-    console.error("Error fetching token balances:", error)
+    console.error('Error fetching token balances:', error)
     throw error
   }
 }

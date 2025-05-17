@@ -1,9 +1,9 @@
 //Types were mostly generated from api results
 
-import type BN from "bn.js"
+import type BN from 'bn.js'
 
 //string. But for now only returns "SOLANA"
-export type Chain = "SOLANA"
+export type Chain = 'SOLANA'
 
 export interface AirdropSearchResult {
   limit: number
@@ -31,7 +31,7 @@ export interface AirdropSearchResultItem {
 }
 
 export interface AirdropDetail extends AirdropSearchResultItem {
-  type: "Instant" | "Vested"
+  type: 'Instant' | 'Vested'
   tokenSymbol: string
   tokenName: string
   tokenDecimals: number
@@ -47,7 +47,7 @@ export interface AirdropDetail extends AirdropSearchResultItem {
   unlockPeriod: number
   cliffAmount?: string
   cliffPercentage?: number
-  unlockInterval: "daily" | "weekly" | "monthly"
+  unlockInterval: 'daily' | 'weekly' | 'monthly'
 }
 
 export interface AirdropCreateData {
@@ -68,7 +68,7 @@ export interface AirdropCreateData {
   isVerified: boolean
   merkleRoot: number[]
   // Derived properties
-  type?: "Instant" | "Vested"
+  type?: 'Instant' | 'Vested'
   amountClaimed?: string
   tokenSymbol?: string
   tokenDecimals?: number
@@ -99,7 +99,7 @@ export interface ClaimableAirdropItem {
 
 export interface AirdropFormData {
   name: string
-  type: "instant" | "vested"
+  type: 'instant' | 'vested'
   mint: string
   startImmediately: boolean
   startDate: string
@@ -108,7 +108,7 @@ export interface AirdropFormData {
   singleClaim: boolean
   endDate: string
   endTime: string
-  unlockInterval: "daily" | "weekly" | "monthly"
+  unlockInterval: 'daily' | 'weekly' | 'monthly'
 }
 
 export interface CreateAirdropParams {

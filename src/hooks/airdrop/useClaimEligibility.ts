@@ -1,9 +1,9 @@
-import { useQuery } from "@tanstack/react-query"
-import { useWallet } from "@solana/wallet-adapter-react"
-import { prepareClaimInstructions } from "@/services/blockchain/streamflowService"
-import { QUERY_KEYS } from "@/config/constants"
-import { BN } from "bn.js"
-import type { ClaimableAirdropItem, ClaimEligibilityData } from "@/types/airdrop"
+import { useQuery } from '@tanstack/react-query'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { prepareClaimInstructions } from '@/services/blockchain/streamflowService'
+import { QUERY_KEYS } from '@/config/constants'
+import { BN } from 'bn.js'
+import type { ClaimableAirdropItem, ClaimEligibilityData } from '@/types/airdrop'
 
 export const useClaimEligibility = (
   airdropId: string | undefined,
@@ -39,7 +39,7 @@ export const useClaimEligibility = (
           userClaimed: !ixs,
         }
       } catch (error) {
-        console.error("Error checking claim eligibility:", error)
+        console.error('Error checking claim eligibility:', error)
         return { userEligible: false, userClaimed: false }
       }
     },
