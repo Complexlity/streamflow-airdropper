@@ -7,9 +7,6 @@ interface AppLayoutProps {
   children: ReactNode
 }
 
-/**
- * Main application layout
- */
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const links = [
     { label: 'Home', path: '/' },

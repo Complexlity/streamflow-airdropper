@@ -13,7 +13,7 @@ const routes: RouteObject[] = [
   { path: 'airdrop/:id', element: <LazyAirdropDetailPage /> },
   { path: 'create', element: <LazyCreateAirdropPage /> },
   { path: '404', element: <NotFoundPage /> },
-  { path: "*", element: <Navigate to="/404" replace /> }
+  { path: '*', element: <Navigate to="/404" replace /> },
 ]
 
 export function App() {

@@ -11,7 +11,6 @@ export const formatTokenAmount = (amount: string, decimals: number): string => {
   const fractionalPart = value % divisor
 
   let fractionalStr = fractionalPart.toString().padStart(decimals, '0')
-  // Trim trailing zeros
   fractionalStr = fractionalStr.replace(/0+$/, '')
 
   if (fractionalStr === '') {

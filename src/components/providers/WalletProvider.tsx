@@ -10,7 +10,7 @@ export default function AppWalletProvider({ children }: { children: React.ReactN
   const network = WalletAdapterNetwork.Devnet
   const endpoint = useMemo(() => clusterApiUrl(network), [network])
 
-  const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], [network])
+  const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], [])
 
   return (
     <ConnectionProvider endpoint={endpoint}>

@@ -4,7 +4,7 @@ import { env } from '@/config/env'
 import { type WalletTokenBalances } from '@/types/token'
 import { getTokenMetadata } from '@/services/api/tokenService'
 
-// Create connection instance
+// Solana connection instance
 export const connection = new Connection(env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster), 'confirmed')
 
 /**

@@ -11,7 +11,6 @@ import type {
 } from '@/types/airdrop'
 import { ApiError } from '@/types/error'
 
-// Create axios instance with common headers
 const axiosStreamflow = axios.create({
   headers: {
     'Content-Type': 'application/json',

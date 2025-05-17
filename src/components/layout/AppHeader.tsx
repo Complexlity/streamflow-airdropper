@@ -9,9 +9,6 @@ interface AppHeaderProps {
   links: { label: string; path: string }[]
 }
 
-/**
- * Application header with navigation and wallet connection
- */
 export const AppHeader = ({ links = [] }: AppHeaderProps) => {
   const { pathname } = useLocation()
   const [showMenu, setShowMenu] = useState(false)
@@ -35,11 +32,7 @@ export const AppHeader = ({ links = [] }: AppHeaderProps) => {
                     to={path}
                     style={({ isActive, isPending, isTransitioning }) => ({
                       fontWeight: isActive ? 'bold' : '',
-                      color: isPending
-                        ? 'red'
-                        : isActive
-                          ? ''
-                          : 'rgb(115 115 115)',
+                      color: isPending ? 'red' : isActive ? '' : 'rgb(115 115 115)',
                       viewTransitionName: isTransitioning ? 'slide' : '',
                     })}
                     className="hover:text-neutral-500 dark:hover:text-white"

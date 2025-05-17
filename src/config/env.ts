@@ -10,5 +10,7 @@ export const env = {
   solana: {
     cluster: ICluster.Devnet,
     rpcEndpoint: clusterApiUrl(ICluster.Devnet),
+    nativeTokenLogo:
+      'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
   },
 } as const

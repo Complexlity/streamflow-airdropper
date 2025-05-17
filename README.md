@@ -19,7 +19,6 @@ Streamflow ony supports Solana at the moment so the app is build on Solana Devne
 - **Hosting:** Currently hosted [Vercel](https://vercel.com/) and [Netlify](https://www.netlify.com/) .
 - **Proxy Server:** Currently hostend on [Deno Deploy](https://deno.com/deploy) .
 
-
 ## 💾 &nbsp; Getting Started
 
 ### Prerequisites
@@ -56,7 +55,6 @@ bun run dev
 
 Navigate to http://localhost:3000
 
-
 ## 📁 &nbsp; Folder Structure
 
 - `src`: All files needeed for the app to run
@@ -74,14 +72,15 @@ Navigate to http://localhost:3000
   - `types`: Types use accross the app. Airdrop and Tokey types are mostly generate from the return values of the services
   - `utils`: Utility functions use across the app.
 
-
 ## 🛡️ &nbsp; Proxy Server Architecture
-Due to how the streamflow api handles requests, their server rejects requests from other domains so we use a proxy server to call most of the api endponts. See [Airdrop Service](/src/services/api/airdropService.ts) and [Token Service](/src/services/api/tokenService.ts). 
+
+Due to how the streamflow api handles requests, their server rejects requests from other domains so we use a proxy server to call most of the api endponts. See [Airdrop Service](/src/services/api/airdropService.ts) and [Token Service](/src/services/api/tokenService.ts).
 
 ## 📚 &nbsp; Learn More
 
 - Stream Flow
-  - [App Docs](https://docs.streamflow.finance/) 
+
+  - [App Docs](https://docs.streamflow.finance/)
   - [API Docs](https://api-public.streamflow.finance/v2/docs#tag/airdrops)
   - [Javascript/Typescript SDK Github](https://github.com/streamflow-finance/js-sdk)
   - [Javascript/Typescript SDK Docs](https://js-sdk-docs.streamflow.finance/)
@@ -93,6 +92,4 @@ Due to how the streamflow api handles requests, their server rejects requests fr
 ## Known Issues
 
 - Inconsistent responses between apis. When actions are performed, it propagates slowly from the chain cluster to streamflow api and this takes some time to reflect on the app. So different enpoints can return different results.
-This can be solved by querying the chain cluster directly using the [Sdk](https://github.com/streamflow-finance/js-sdk). Will be implemented in the coming commits.
-
-
+  This can be solved by querying the chain cluster directly using the [Sdk](https://github.com/streamflow-finance/js-sdk). Will be implemented in the coming commits.
