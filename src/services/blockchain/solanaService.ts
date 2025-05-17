@@ -4,7 +4,8 @@ import { env } from '@/config/env'
 import { type WalletTokenBalances } from '@/types/token'
 import { getTokenMetadata } from '@/services/api/tokenService'
 
-export const connection = new Connection(env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster), 'confirmed')
+
+const connection = new Connection(env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster), 'confirmed')
 
 /**
  * Get token balances for a wallet
@@ -47,7 +48,7 @@ export const getTokenBalances = async (address: string): Promise<WalletTokenBala
           mint: mintAddress,
           amount,
           name: 'Unknown Token',
-          symbol: mintAddress.slice(0, 4),
+          symbol: 'UNK'+ mintAddress.slice(0, 3),
           decimals: account.data.parsed.info.tokenAmount.decimals,
           image: '/placeholder.svg',
         }
