@@ -3,6 +3,7 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { env } from '@/config/env'
 import { type WalletTokenBalances } from '@/types/token'
 import { getTokenMetadata } from '@/services/api/tokenService'
+import { formatTokenAmount } from '@/utils'
 
 
 const connection = new Connection(env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster), 'confirmed')
@@ -17,7 +18,7 @@ export const getTokenBalances = async (address: string): Promise<WalletTokenBala
     const publicKey = new PublicKey(address)
 
     const lamports = await connection.getBalance(publicKey)
-    const sol = lamports / 1e9
+    const sol = Number(formatTokenAmount(lamports.toString(), 9))
 
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
       programId: TOKEN_PROGRAM_ID,
@@ -48,7 +49,7 @@ export const getTokenBalances = async (address: string): Promise<WalletTokenBala
           mint: mintAddress,
           amount,
           name: 'Unknown Token',
-          symbol: 'UNK'+ mintAddress.slice(0, 3),
+          symbol: 'UNK' + mintAddress.slice(0, 3),
           decimals: account.data.parsed.info.tokenAmount.decimals,
           image: '/placeholder.svg',
         }
