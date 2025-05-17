@@ -21,9 +21,6 @@ import { toast } from "sonner"
 import { handleApiError } from "@/utils/errors"
 import { useTransactionToast } from "@/hooks/useTransactionToast"
 
-/**
- * Form for creating a new airdrop
- */
 export const CreateAirdropForm = () => {
   const navigate = useNavigate()
   const { connected, wallet, publicKey } = useWallet()
@@ -67,14 +64,12 @@ export const CreateAirdropForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validate form data
     const validationError = validateAirdropForm(formData, recipients)
     if (validationError) {
       toast.error(validationError)
       return
     }
 
-    // Create airdrop
     createAirdrop({
       formData,
       recipients,

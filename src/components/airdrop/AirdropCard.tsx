@@ -12,9 +12,6 @@ interface AirdropCardProps {
   airdrop: AirdropSearchResultItem
 }
 
-/**
- * Displays an airdrop in a card format with token information and progress
- */
 export const AirdropCard = ({ airdrop }: AirdropCardProps) => {
   const navigate = useNavigate()
   const { data: token, isLoading: isLoadingToken } = useTokenMetadata(airdrop.mint)

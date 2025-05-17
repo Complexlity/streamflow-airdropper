@@ -11,15 +11,17 @@ export const handleApiError = (error: unknown, fallbackMessage = 'An unexpected 
 
   if (error instanceof ApiError) {
     toast.error(error.message)
-    console.error('API Error:', error.details)
-  }
-
-  if (error && typeof error === 'object' && 'message' in error && error.message && typeof error.message === 'string') {
-    toast.error(error.message)
+    console.error('API Error:', error)
     return
   }
 
   if (error instanceof Error) {
+    toast.error(error.message)
+    return
+  }
+
+  // Error hass a message property
+  if (error && typeof error === 'object' && 'message' in error && error.message && typeof error.message === 'string') {
     toast.error(error.message)
     return
   }
