@@ -5,7 +5,7 @@ export const env = {
   api: {
     privateStreamflow: 'https://staging-api.streamflow.finance/v2/api',
     publicStreamflow: 'https://staging-api-public.streamflow.finance/v2/api',
-    proxyServer: import.meta.env.VITE_PROXY_SERVER_URL || 'http://localhost:3000',
+    proxyServer: import.meta.env.VITE_PROXY_SERVER_URL,
   },
   solana: {
     cluster: ICluster.Devnet,
@@ -14,3 +14,7 @@ export const env = {
       'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
   },
 } as const
+
+if (!env.api.proxyServer) {
+  throw new Error("Proxy server url missing from env (see .env.sample")
+}
