@@ -10,9 +10,9 @@ export const useClaimableAirdrops = (walletAddress?: string) => {
       const claimable = await getClaimableAirdrops(walletAddress)
       if (!Array.isArray(claimable)) return []
 
-      //Claimable query does not return required results so we also get by Id
+      //Claimable query does not return required results so we also getAirdropById
       const details = await Promise.all(
-        claimable.map(async (item: Awaited<ReturnType<typeof getClaimableAirdrops>>[number]) => {
+        claimable.map(async (item) => {
           const airdrop = await getAirdropById(item.distributorAddress)
           return { ...item, ...airdrop }
         }),
