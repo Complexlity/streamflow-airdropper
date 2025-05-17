@@ -21,16 +21,16 @@ export const parseCsv = async (file: File): Promise<AirdropRecipient[]> => {
     const [address, amount] = line.split(',').map((item) => item.trim())
 
     if (!address || !amount) {
-      throw new Error(`Invalid format at line ${i + 1}: Missing address or amount`)
+      continue
     }
 
     if (address.length < 32) {
-      throw new Error(`Invalid address format at line ${i + 1}`)
+      continue
     }
 
     const parsedAmount = Number.parseFloat(amount)
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      throw new Error(`Invalid amount at line ${i + 1}: Must be a positive number`)
+      continue
     }
 
     recipients.push({
@@ -39,5 +39,8 @@ export const parseCsv = async (file: File): Promise<AirdropRecipient[]> => {
     })
   }
 
+  if (recipients.length === 0) {
+    throw new Error('No recipients found')
+  }
   return recipients
 }
