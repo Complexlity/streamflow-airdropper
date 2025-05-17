@@ -17,7 +17,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     <>
       <div className="flex flex-col min-h-screen">
         <AppHeader links={links} />
-        <main className="flex-grow container mx-auto p-4">{children}</main>
+        <main className="max-w-[1100px] flex-grow container mx-auto p-4">{children}</main>
         <AppFooter />
       </div>
       <Toaster />

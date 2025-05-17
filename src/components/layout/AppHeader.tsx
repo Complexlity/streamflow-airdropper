@@ -16,7 +16,7 @@ export const AppHeader = ({ links = [] }: AppHeaderProps) => {
 
   return (
     <header className="relative z-50 px-4 py-2 bg-neutral-100 dark:bg-neutral-900 dark:text-neutral-400">
-      <div className="mx-auto flex justify-between items-center">
+      <div className="mx-auto flex justify-between items-center max-w-[1100px]">
         <div className="flex items-center gap-4">
           <NavLink to="/" className="text-xl hover:text-neutral-500 dark:hover:text-white flex items-center">
             <img src="/logo.png" alt="Logo" className="h-8 w-8" />
