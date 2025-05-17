@@ -7,7 +7,7 @@ export const env = {
   },
   solana: {
     cluster: ICluster.Devnet,
-    rpcEndpoint: clusterApiUrl(ICluster.Devnet),
+    rpcEndpoint: import.meta.env.VITE_RPC_ENDPOINT || clusterApiUrl(ICluster.Devnet),
     nativeTokenLogo:
       'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
   },

@@ -7,7 +7,7 @@ import type { ICreateDistributorData, IGetClaimData } from '@streamflow/distribu
 import BN from 'bn.js'
 
 const distributorClient = new StreamflowDistributorSolana.SolanaDistributorClient({
-  clusterUrl: clusterApiUrl(env.solana.cluster),
+  clusterUrl: env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster),
   cluster: env.solana.cluster,
 })
 
