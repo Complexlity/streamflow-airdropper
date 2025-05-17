@@ -6,7 +6,6 @@ import { StreamflowDistributorSolana } from '@streamflow/distributor'
 import type { ICreateDistributorData, IGetClaimData } from '@streamflow/distributor/solana'
 import BN from 'bn.js'
 
-// Create distributor client
 const distributorClient = new StreamflowDistributorSolana.SolanaDistributorClient({
   clusterUrl: clusterApiUrl(env.solana.cluster),
   cluster: env.solana.cluster,
@@ -82,7 +81,7 @@ export const prepareClaimInstructions = async (
       invoker: wallet.adapter,
     })
   } catch (error) {
-    // This might be a normal case where user is not eligible
+    // This means the user is eligible but has already claimed
     if (error && typeof error === 'object' && 'message' in error && error.message === 'invalid account discriminator') {
       return null
     }

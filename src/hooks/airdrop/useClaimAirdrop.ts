@@ -38,7 +38,7 @@ export const useClaimAirdrop = (wallet: Wallet | null, options: ClaimAirdropOpti
       return claimAirdrop(claimingData, wallet)
     },
     onSuccess: (data, variables) => {
-      // Invalidate relevant queries
+      
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.getClaimableAirdrop],
       })
@@ -46,13 +46,11 @@ export const useClaimAirdrop = (wallet: Wallet | null, options: ClaimAirdropOpti
         queryKey: [QUERY_KEYS.getAirdropById, variables.distributorAddress],
       })
 
-      // Call custom onSuccess if provided
       if (options.onSuccess) {
         options.onSuccess(data, variables)
       }
     },
     onError: (error) => {
-      // Call custom onError if provided
       if (options.onError) {
         options.onError(error)
       }

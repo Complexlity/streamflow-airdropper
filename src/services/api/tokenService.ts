@@ -62,6 +62,6 @@ export const getTokenPrice = async (tokenAddress: string, cluster = 'devnet'): P
     return data?.data?.[tokenAddress]?.value ?? 0
   } catch (error) {
     console.error('Error fetching token price:', error)
-    return 0 // Return 0 as fallback for price errors
+    return 0 
   }
 }

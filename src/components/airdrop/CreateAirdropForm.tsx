@@ -64,14 +64,12 @@ export const CreateAirdropForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validate form data
     const validationError = validateAirdropForm(formData, recipients)
     if (validationError) {
       toast.error(validationError)
       return
     }
 
-    // Create airdrop
     createAirdrop({
       formData,
       recipients,

@@ -28,7 +28,6 @@ export const useCreateAirdrop = (
         throw new Error('Wallet not connected')
       }
 
-      // Calculate timestamps
       let startTimestamp = formData.startImmediately
         ? 0
         : Math.floor(new Date(`${formData.startDate}T${formData.startTime || '00:00'}`).getTime() / 1000)
@@ -43,14 +42,12 @@ export const useCreateAirdrop = (
           ? Math.floor(new Date(`${formData.endDate}T${formData.endTime || '23:59'}`).getTime() / 1000)
           : 0
 
-      // Create merkle root
       const airdropWithMerkleRoot = await createAirdropMerkleRoot({
         recepients: recipients,
         name: formData.name,
         mint: formData.mint === 'native' ? 'So11111111111111111111111111111111111111112' : formData.mint,
       })
 
-      // Calculate unlock period
       const unlockPeriod =
         formData.unlockInterval === 'daily' ? 86400 : formData.unlockInterval === 'weekly' ? 604800 : 2592000
 
@@ -69,7 +66,6 @@ export const useCreateAirdrop = (
         claimsLimit: formData.singleClaim ? 1 : 0,
       }
 
-      // Create airdrop
       const result = await createDistributor(data, wallet)
 
       return {

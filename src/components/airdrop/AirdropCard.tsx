@@ -56,7 +56,7 @@ interface TokenDisplayProps {
   token: TokenMetadata | null | undefined
   isLoading: boolean
 }
-// Sub-components for better organization
+
 function TokenDisplay({ token, mint, isLoading }: TokenDisplayProps) {
   if (isLoading) return <div className="h-5 animate-pulse bg-gray-200 rounded w-24" />
 

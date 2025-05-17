@@ -9,7 +9,6 @@ import type { AirdropFormData, AirdropRecipient } from '@/types'
  * @returns Error message or null if valid
  */
 export const validateAirdropForm = (formData: AirdropFormData, recipients: AirdropRecipient[]): string | null => {
-  // Check required fields
   if (!formData.name.trim()) {
     return 'Missing airdrop name'
   }
@@ -22,7 +21,6 @@ export const validateAirdropForm = (formData: AirdropFormData, recipients: Airdr
     return 'No recipients uploaded'
   }
 
-  // Validate dates for vested airdrops
   if (formData.type === 'vested') {
     if (!formData.endDate) {
       return 'Missing end date for vested airdrop'

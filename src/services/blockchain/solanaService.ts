@@ -4,7 +4,6 @@ import { env } from '@/config/env'
 import { type WalletTokenBalances } from '@/types/token'
 import { getTokenMetadata } from '@/services/api/tokenService'
 
-// Solana connection instance
 export const connection = new Connection(env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster), 'confirmed')
 
 /**
@@ -16,11 +15,9 @@ export const getTokenBalances = async (address: string): Promise<WalletTokenBala
   try {
     const publicKey = new PublicKey(address)
 
-    // Get SOL balance
     const lamports = await connection.getBalance(publicKey)
     const sol = lamports / 1e9
 
-    // Get token accounts
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
       programId: TOKEN_PROGRAM_ID,
     })
@@ -29,13 +26,11 @@ export const getTokenBalances = async (address: string): Promise<WalletTokenBala
       ({ account }) => Number(account.data.parsed.info.tokenAmount.uiAmount) > 0,
     )
 
-    // Process token accounts
     const tokenPromises = filteredTokenAccounts.map(async ({ account }) => {
       const mintAddress = account.data.parsed.info.mint
       const amount = Number(account.data.parsed.info.tokenAmount.uiAmountString)
 
       try {
-        // Get token metadata
         const metadata = await getTokenMetadata(mintAddress)
 
         return {

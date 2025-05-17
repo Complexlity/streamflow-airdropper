@@ -67,7 +67,6 @@ export interface AirdropCreateData {
   isAligned: boolean
   isVerified: boolean
   merkleRoot: number[]
-  // Derived properties
   type?: 'Instant' | 'Vested'
   amountClaimed?: string
   tokenSymbol?: string
