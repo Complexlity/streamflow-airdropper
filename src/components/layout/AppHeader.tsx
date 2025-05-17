@@ -1,28 +1,25 @@
-import { useState } from 'react'
-import { NavLink, useLocation } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { Menu, X } from 'lucide-react'
-import { ThemeSelect } from './ThemeSelect'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+import { Menu, X } from 'lucide-react'
+import { useState } from 'react'
+import { NavLink } from 'react-router'
+import { ThemeSelect } from './ThemeSelect'
 
 interface AppHeaderProps {
   links: { label: string; path: string }[]
 }
 
 export const AppHeader = ({ links = [] }: AppHeaderProps) => {
-  const { pathname } = useLocation()
   const [showMenu, setShowMenu] = useState(false)
 
-  const isActive = (path: string) => {
-    return path === '/' ? pathname === '/' : pathname.startsWith(path)
-  }
+  const handleNavClick = () => setShowMenu(false)
 
   return (
     <header className="relative z-50 px-4 py-2 bg-neutral-100 dark:bg-neutral-900 dark:text-neutral-400">
       <div className="mx-auto flex justify-between items-center">
-        <div className="flex items-baseline gap-4">
-          <NavLink to="/" className="text-xl hover:text-neutral-500 dark:hover:text-white">
-            <span>Streamflow Airdropper</span>
+        <div className="flex items-center gap-4">
+          <NavLink to="/" className="text-xl hover:text-neutral-500 dark:hover:text-white flex items-center">
+            <img src="/logo.png" alt="Logo" className="h-8 w-8" />
           </NavLink>
           <div className="hidden md:flex items-center">
             <ul className="flex gap-4 flex-nowrap items-center">
@@ -61,8 +58,14 @@ export const AppHeader = ({ links = [] }: AppHeaderProps) => {
                 {links.map(({ label, path }) => (
                   <li key={path}>
                     <NavLink
-                      className={`hover:text-neutral-500 dark:hover:text-white ${isActive(path) ? 'text-neutral-500 dark:text-white' : ''}`}
+                      className="hover:text-neutral-500 dark:hover:text-white"
                       to={path}
+                      style={({ isActive, isPending, isTransitioning }) => ({
+                        fontWeight: isActive ? 'bold' : '',
+                        color: isPending ? 'red' : isActive ? '' : 'rgb(115 115 115)',
+                        viewTransitionName: isTransitioning ? 'slide' : '',
+                      })}
+                      onClick={handleNavClick}
                     >
                       {label}
                     </NavLink>
