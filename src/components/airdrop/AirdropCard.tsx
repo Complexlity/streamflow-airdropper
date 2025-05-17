@@ -87,7 +87,11 @@ function AirdropAmounts({ airdrop, token, tokenPrice }: AirdropAmountsProps) {
         <span className="text-muted-foreground">Total Amount:</span>
         <span className="font-medium">
           {token ? formatTokenAmount(airdrop.maxTotalClaim, token.decimals) : airdrop.maxTotalClaim}
-          {token && ` ${token.symbol}`}
+          {token && tokenPrice && (
+            <span className="text-muted-foreground ml-1">
+              ({formatUsdValue(airdrop.maxTotalClaim, token.decimals, tokenPrice)})
+            </span>
+          )}
         </span>
       </div>
 
@@ -95,7 +99,6 @@ function AirdropAmounts({ airdrop, token, tokenPrice }: AirdropAmountsProps) {
         <span className="text-muted-foreground">Claimed:</span>
         <span className="font-medium">
           {token ? formatTokenAmount(airdrop.totalAmountUnlocked, token.decimals) : airdrop.totalAmountUnlocked}
-          {token && ` ${token.symbol}`}
           {token && tokenPrice && (
             <span className="text-muted-foreground ml-1">
               ({formatUsdValue(airdrop.totalAmountUnlocked, token.decimals, tokenPrice)})
