@@ -11,6 +11,15 @@
 The app create a permissionless airdrop on [Streamflow](https://app.streamflow.finance/). Users can view all airdrops, available airdrops for their connected wallet and claim tokens.
 Streamflow ony supports Solana at the moment so the app is build on Solana Devnet Cluster.
 
+### Tech Stack
+
+- **Frontend:** [React Router + Vite]("https://reactrouter.com/start/declarative/installation), [Shadcn UI](https://ui.shadcn.com/) .
+- **Solana:** [solana web3.js](https://www.npmjs.com/package/@solana/web3.js/v/0.30.8), [spl-token](https://www.npmjs.com/package/@solana/spl-token) .
+- **Streamflow:** [Streamflow JS SDK](https://github.com/streamflow-finance/js-sdk), [Streamflow API](https://api-public.streamflow.finance/v2/docs#tag/airdrops) .
+- **Hosting:** Currently hosted [Vercel](https://vercel.com/) and [Netlify](https://www.netlify.com/) .
+- **Proxy Server:** Currently hostend on [Deno Deploy](https://deno.com/deploy) .
+
+
 ## 💾 &nbsp; Getting Started
 
 ### Prerequisites
