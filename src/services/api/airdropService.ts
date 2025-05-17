@@ -25,7 +25,7 @@ const axiosStreamflow = axios.create({
  */
 export const getAirdropById = async (distributorId: string): Promise<AirdropCreateData> => {
   try {
-    const response = await axiosStreamflow.get<AirdropByIDRequest[]>(`${env.api.proxyServer}/airdrops/${distributorId}`)
+    const response = await axiosStreamflow.get<AirdropByIDRequest[]>(`${env.api.proxyServerUrl}/airdrops/${distributorId}`)
 
     if (!response.data || response.data.length === 0) {
       throw new ApiError('Airdrop not found', 'not_found')
@@ -62,7 +62,7 @@ export const getAirdropById = async (distributorId: string): Promise<AirdropCrea
  */
 export const getAllAirdrops = async (limit = 10, offset = 0): Promise<AirdropSearchResultItem[]> => {
   try {
-    const response = await axiosStreamflow.post<AirdropSearchResult>(`${env.api.proxyServer}/airdrops/search`, {
+    const response = await axiosStreamflow.post<AirdropSearchResult>(`${env.api.proxyServerUrl}/airdrops/search`, {
       actor: '',
       limit,
       offset,
@@ -90,7 +90,7 @@ export const getAllAirdrops = async (limit = 10, offset = 0): Promise<AirdropSea
 export const getClaimableAirdrops = async (address: string, limit = 100): Promise<ClaimableAirdropResult['items']> => {
   try {
     const response = await axiosStreamflow.get<ClaimableAirdropResult>(
-      `${env.api.proxyServer}/airdrops/claimable/${address}`,
+      `${env.api.proxyServerUrl}/airdrops/claimable/${address}`,
       {
         params: {
           limit,
@@ -118,7 +118,7 @@ export const getClaimantByAddress = async (
 ): Promise<ClaimableAirdropItem | null> => {
   try {
     const response = await axios.get<ClaimableAirdropItem | null>(
-      `${env.api.proxyServer}/claimant/${distributorId}/${claimantAddress}`,
+      `${env.api.proxyServerUrl}/claimant/${distributorId}/${claimantAddress}`,
     )
 
     return response.data
@@ -159,7 +159,7 @@ export const createAirdropMerkleRoot = async ({
 }> => {
   try {
     const response = await axios.post(
-      `${env.api.proxyServer}/merkle`,
+      `${env.api.proxyServerUrl}/merkle`,
       {
         recepients,
         name,

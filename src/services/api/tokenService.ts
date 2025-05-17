@@ -16,7 +16,7 @@ export const getTokenMetadata = async (
 ): Promise<TokenMetadata> => {
   try {
     const response = await axios.post(
-      `${env.api.proxyServer}/token-meta`,
+      `${env.api.proxyServerUrl}/token-meta`,
       {
         addresses: [mint],
         cluster,
@@ -51,7 +51,7 @@ export const getTokenMetadata = async (
  */
 export const getTokenPrice = async (tokenAddress: string, cluster = 'devnet'): Promise<number> => {
   try {
-    const endpoint = `${env.api.proxyServer}/price?ids=${tokenAddress}&cluster=${cluster}`
+    const endpoint = `${env.api.proxyServerUrl}/price?ids=${tokenAddress}&cluster=${cluster}`
     const response = await fetch(endpoint)
 
     if (!response.ok) {
@@ -62,6 +62,6 @@ export const getTokenPrice = async (tokenAddress: string, cluster = 'devnet'): P
     return data?.data?.[tokenAddress]?.value ?? 0
   } catch (error) {
     console.error('Error fetching token price:', error)
-    return 0 
+    return 0
   }
 }
