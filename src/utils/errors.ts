@@ -1,3 +1,4 @@
+import { ApiError } from '@/types'
 import { toast } from 'sonner'
 
 /**
@@ -7,6 +8,11 @@ import { toast } from 'sonner'
  */
 export const handleApiError = (error: unknown, fallbackMessage = 'An unexpected error occurred'): void => {
   console.error('API Error:', error)
+
+  if (error instanceof ApiError) {
+    toast.error(error.message)
+    console.error('API Error:', error.details)
+  }
 
   if (error && typeof error === 'object' && 'message' in error && error.message && typeof error.message === 'string') {
     toast.error(error.message)
