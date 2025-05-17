@@ -30,26 +30,6 @@ export interface AirdropSearchResultItem {
   isAligned: boolean
 }
 
-export interface AirdropDetail extends AirdropSearchResultItem {
-  type: 'Instant' | 'Vested'
-  tokenSymbol: string
-  tokenName: string
-  tokenDecimals: number
-  tokenLogo: string
-  tokenPrice: number
-  claimedCount: number
-  totalRecipients: number
-  claimedAmount: string
-  userClaimableAmount: string
-  userEligible: boolean
-  startVestingTs: number
-  endVestingTs: number
-  unlockPeriod: number
-  cliffAmount?: string
-  cliffPercentage?: number
-  unlockInterval: 'daily' | 'weekly' | 'monthly'
-}
-
 export interface AirdropCreateData {
   chain: Chain
   mint: string

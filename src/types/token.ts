@@ -1,14 +1,4 @@
 //Types were most generated from api results
-export interface Token {
-  address: string
-  symbol: string
-  name: string
-  decimals: number
-  logoURI: string
-  balance: string
-  price: number
-}
-
 export interface TokenMetadata {
   address: string
   name: string

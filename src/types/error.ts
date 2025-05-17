@@ -1,9 +1,3 @@
-export interface ApiErrorData {
-  code: string
-  message: string
-  details?: unknown
-}
-
 export class ApiError extends Error {
   code: string
   details?: unknown
