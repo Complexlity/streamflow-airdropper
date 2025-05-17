@@ -3,7 +3,7 @@ import { ApiError } from '@/types/error'
 import type { Wallet } from '@solana/wallet-adapter-react'
 import { clusterApiUrl } from '@solana/web3.js'
 import { StreamflowDistributorSolana } from '@streamflow/distributor'
-import type { ICreateDistributorData, IGetClaimData } from '@streamflow/distributor/solana'
+import type { IClaimData, ICreateDistributorData, IGetClaimData } from '@streamflow/distributor/solana'
 import BN from 'bn.js'
 
 const distributorClient = new StreamflowDistributorSolana.SolanaDistributorClient({
@@ -67,12 +67,7 @@ export const claimAirdrop = async (
  * @description This is used as a backup to check if the user has claimed their airdrop or not. Propagation to the api can be slow but if the user has claimed, getting the instructions will fail.
  */
 export const prepareClaimInstructions = async (
-  claimData: {
-    amountLocked: BN
-    amountUnlocked: BN
-    id: string
-    proof: number[][]
-  },
+  claimData: IClaimData,
   wallet: Wallet,
 ) => {
   try {
