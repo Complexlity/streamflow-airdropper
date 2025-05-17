@@ -136,19 +136,12 @@ function AirdropInfoCard({ airdrop }: AirdropInfoCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Airdrop Details</CardTitle>
         <CardDescription>
           ID: {formatAddress(airdrop.address)}
           <CopyButton text={airdrop.address} />
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">
-            {airdrop.name} ({token?.symbol || airdrop.tokenSymbol || '????'})
-          </span>
-        </div>
-
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Total Amount</p>
