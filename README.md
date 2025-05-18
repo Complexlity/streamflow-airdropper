@@ -76,6 +76,10 @@ Navigate to http://localhost:3000
 
 Due to how the streamflow api handles requests, their server rejects requests from other domains so we use a proxy server to call most of the api endponts. See [Airdrop Service](/src/services/api/airdropService.ts) and [Token Service](/src/services/api/tokenService.ts).
 
+<p align="center">
+  <img src="./streamflow-architecture.svg" alt="Streamflow Architecture" width="700">
+</p>
+
 ## 📚 &nbsp; Learn More
 
 - Stream Flow
