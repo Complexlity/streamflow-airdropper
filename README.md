@@ -93,7 +93,7 @@ Due to how the streamflow api handles requests, their server rejects requests fr
 - Solana
   - [Rpc Methods](https://solana.com/docs/rpc)
 
-## Known Issues
+## Improvements
+- [ ] Better UI
+- [ ] Use streamflow public apis and sdk rather than proxy
 
-- Inconsistent responses between apis. When actions are performed, it propagates slowly from the chain cluster to streamflow api and this takes some time to reflect on the app. So different enpoints can return different results.
-  This can be solved by querying the chain cluster directly using the [Sdk](https://github.com/streamflow-finance/js-sdk). Will be implemented in the coming commits.
