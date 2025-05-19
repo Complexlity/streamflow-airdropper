@@ -1,26 +1,26 @@
-import type React from "react"
+import type React from 'react'
 
-import { useState } from "react"
-import { useNavigate } from "react-router"
-import { useWallet } from "@solana/wallet-adapter-react"
-import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useCreateAirdrop } from "@/hooks/airdrop/useCreateAirdrop"
-import type { AirdropFormData, AirdropRecipient } from "@/types/airdrop"
-import { validateAirdropForm } from "@/utils/validation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { TokenSelector } from "@/components/airdrop/TokenSelector"
-import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Clock } from "lucide-react"
-import { RecipientsUploader } from "./RecipientsUploader"
-import { toast } from "sonner"
-import { handleApiError } from "@/utils/errors"
-import { useTransactionToast } from "@/hooks/useTransactionToast"
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui"
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useCreateAirdrop } from '@/hooks/airdrop/useCreateAirdrop'
+import type { AirdropFormData, AirdropRecipient } from '@/types/airdrop'
+import { validateAirdropForm } from '@/utils/validation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { TokenSelector } from '@/components/airdrop/TokenSelector'
+import { Switch } from '@/components/ui/switch'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Calendar, Clock } from 'lucide-react'
+import { RecipientsUploader } from './RecipientsUploader'
+import { toast } from 'sonner'
+import { handleApiError } from '@/utils/errors'
+import { useTransactionToast } from '@/hooks/useTransactionToast'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 
 export const CreateAirdropForm = () => {
   const navigate = useNavigate()
@@ -37,22 +37,22 @@ export const CreateAirdropForm = () => {
       }
     },
     onError: (error) => {
-      handleApiError(error, "Failed to create airdrop")
+      handleApiError(error, 'Failed to create airdrop')
     },
   })
 
   const [formData, setFormData] = useState<AirdropFormData>({
-    name: "",
-    type: "instant",
-    mint: "",
+    name: '',
+    type: 'instant',
+    mint: '',
     startImmediately: true,
-    startDate: "",
-    startTime: "",
+    startDate: '',
+    startTime: '',
     isCancellable: false,
     singleClaim: true,
-    endDate: "",
-    endTime: "",
-    unlockInterval: "daily",
+    endDate: '',
+    endTime: '',
+    unlockInterval: 'daily',
   })
 
   const [recipients, setRecipients] = useState<AirdropRecipient[]>([])
@@ -111,7 +111,7 @@ export const CreateAirdropForm = () => {
             disabled={isCreating || !connected || recipients.length === 0}
             className="w-full md:w-auto"
           >
-            {isCreating ? "Creating..." : "Create Airdrop"}
+            {isCreating ? 'Creating...' : 'Create Airdrop'}
           </Button>
         </div>
       </form>
@@ -123,7 +123,7 @@ function Header() {
   const navigate = useNavigate()
   return (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="icon" onClick={() => navigate("/")}>
+      <Button variant="outline" size="icon" onClick={() => navigate('/')}>
         <ArrowLeft className="h-4 w-4" />
       </Button>
       <h1 className="text-2xl font-bold">Create Airdrop</h1>
@@ -163,7 +163,7 @@ function BasicInfoSection({
               name="name"
               placeholder="Enter airdrop name"
               value={formData.name}
-              onChange={(e) => onInputChange("name", e.target.value)}
+              onChange={(e) => onInputChange('name', e.target.value)}
               required
             />
           </div>
@@ -172,7 +172,7 @@ function BasicInfoSection({
             <Label>Airdrop Type</Label>
             <RadioGroup
               value={formData.type}
-              onValueChange={(value) => onInputChange("type", value)}
+              onValueChange={(value) => onInputChange('type', value)}
               className="flex gap-4"
             >
               <div className="flex items-center space-x-2">
@@ -187,7 +187,7 @@ function BasicInfoSection({
           </div>
         </div>
 
-        <TokenSelector value={formData.mint} onChange={(value) => onInputChange("mint", value)} />
+        <TokenSelector value={formData.mint} onChange={(value) => onInputChange('mint', value)} />
 
         <RecipientsUploader
           recipients={recipients}
@@ -205,7 +205,6 @@ interface AirdropSettingsSectionProps {
   onInputChange: (name: string, value: string | boolean) => void
 }
 
-
 function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSectionProps) {
   return (
     <Card>
@@ -221,7 +220,7 @@ function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSect
           </div>
           <Switch
             checked={formData.startImmediately}
-            onCheckedChange={(checked) => onInputChange("startImmediately", checked)}
+            onCheckedChange={(checked) => onInputChange('startImmediately', checked)}
           />
         </div>
 
@@ -236,7 +235,7 @@ function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSect
                   name="startDate"
                   type="date"
                   value={formData.startDate}
-                  onChange={(e) => onInputChange("startDate", e.target.value)}
+                  onChange={(e) => onInputChange('startDate', e.target.value)}
                 />
               </div>
             </div>
@@ -250,7 +249,7 @@ function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSect
                   name="startTime"
                   type="time"
                   value={formData.startTime}
-                  onChange={(e) => onInputChange("startTime", e.target.value)}
+                  onChange={(e) => onInputChange('startTime', e.target.value)}
                 />
               </div>
             </div>
@@ -264,7 +263,7 @@ function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSect
           </div>
           <Switch
             checked={formData.isCancellable}
-            onCheckedChange={(checked) => onInputChange("isCancellable", checked)}
+            onCheckedChange={(checked) => onInputChange('isCancellable', checked)}
           />
         </div>
 
@@ -273,10 +272,10 @@ function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSect
             <Label>Single Claim</Label>
             <p className="text-sm text-muted-foreground">Users can only claim once</p>
           </div>
-          <Switch checked={formData.singleClaim} onCheckedChange={(checked) => onInputChange("singleClaim", checked)} />
+          <Switch checked={formData.singleClaim} onCheckedChange={(checked) => onInputChange('singleClaim', checked)} />
         </div>
 
-        {formData.type === "vested" && (
+        {formData.type === 'vested' && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -288,8 +287,8 @@ function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSect
                     name="endDate"
                     type="date"
                     value={formData.endDate}
-                    onChange={(e) => onInputChange("endDate", e.target.value)}
-                    required={formData.type === "vested"}
+                    onChange={(e) => onInputChange('endDate', e.target.value)}
+                    required={formData.type === 'vested'}
                   />
                 </div>
               </div>
@@ -303,7 +302,7 @@ function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSect
                     name="endTime"
                     type="time"
                     value={formData.endTime}
-                    onChange={(e) => onInputChange("endTime", e.target.value)}
+                    onChange={(e) => onInputChange('endTime', e.target.value)}
                   />
                 </div>
               </div>
@@ -311,7 +310,7 @@ function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSect
 
             <div className="space-y-2">
               <Label htmlFor="unlockInterval">Unlock Interval</Label>
-              <Select value={formData.unlockInterval} onValueChange={(value) => onInputChange("unlockInterval", value)}>
+              <Select value={formData.unlockInterval} onValueChange={(value) => onInputChange('unlockInterval', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select unlock interval" />
                 </SelectTrigger>

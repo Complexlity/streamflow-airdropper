@@ -25,7 +25,9 @@ const axiosStreamflow = axios.create({
  */
 export const getAirdropById = async (distributorId: string): Promise<AirdropCreateData> => {
   try {
-    const response = await axiosStreamflow.get<AirdropByIDRequest[]>(`${env.api.proxyServerUrl}/airdrops/${distributorId}`)
+    const response = await axiosStreamflow.get<AirdropByIDRequest[]>(
+      `${env.api.proxyServerUrl}/airdrops/${distributorId}`,
+    )
 
     if (!response.data || response.data.length === 0) {
       throw new ApiError('Airdrop not found', 'not_found')

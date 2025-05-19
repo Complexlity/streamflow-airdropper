@@ -14,5 +14,5 @@ export const env = {
 } as const
 
 if (!env.api.proxyServerUrl) {
-  throw new Error("Proxy server url missing from env (see .env.sample")
+  throw new Error('Proxy server url missing from env (see .env.sample')
 }

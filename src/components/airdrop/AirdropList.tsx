@@ -8,8 +8,6 @@ import { useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 import { AirdropCard } from './AirdropCard'
 
-
-
 export const AirdropList = () => {
   const { connected, publicKey } = useWallet()
   const walletAddress = publicKey?.toBase58()
@@ -24,11 +22,11 @@ export const AirdropList = () => {
   // Memoize paginated data
   const paginatedAllAirdrops = useMemo(
     () => (allAirdrops ? paginate(allAirdrops, page, PAGE_SIZE) : []),
-    [allAirdrops, page]
+    [allAirdrops, page],
   )
   const paginatedClaimableAirdrops = useMemo(
     () => (claimableAirdrops ? paginate(claimableAirdrops, page, PAGE_SIZE) : []),
-    [claimableAirdrops, page]
+    [claimableAirdrops, page],
   )
 
   const handleTabChange = (value: string) => {
@@ -62,12 +60,7 @@ export const AirdropList = () => {
                 <AirdropCard key={airdrop.address} airdrop={airdrop} />
               ))}
             </div>
-            <Pagination
-              page={page}
-              total={allAirdrops.length}
-              pageSize={PAGE_SIZE}
-              onPageChange={handlePageChange}
-            />
+            <Pagination page={page} total={allAirdrops.length} pageSize={PAGE_SIZE} onPageChange={handlePageChange} />
           </>
         )}
       </TabsContent>
@@ -82,9 +75,7 @@ export const AirdropList = () => {
         ) : !connected ? (
           <div className="col-span-full text-center py-8 space-y-4">
             <p className="text-red-500">Connect your wallet to view claimable airdrops</p>
-            <WalletMultiButton>
-              Connect Wallet
-            </WalletMultiButton>
+            <WalletMultiButton>Connect Wallet</WalletMultiButton>
           </div>
         ) : !claimableAirdrops || claimableAirdrops.length === 0 ? (
           <div className="col-span-full text-center py-8">No claimable airdrops found</div>
@@ -107,7 +98,6 @@ export const AirdropList = () => {
     </Tabs>
   )
 }
-
 
 const PAGE_SIZE = 9
 

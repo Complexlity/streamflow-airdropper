@@ -7,7 +7,6 @@ import { clusterApiUrl } from '@solana/web3.js'
 import React, { useMemo } from 'react'
 
 export default function AppWalletProvider({ children }: { children: React.ReactNode }) {
-
   const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], [])
   const endpoint = env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster)
   return (

@@ -38,7 +38,6 @@ export const useClaimAirdrop = (wallet: Wallet | null, options: ClaimAirdropOpti
       return claimAirdrop(claimingData, wallet)
     },
     onSuccess: (data, variables) => {
-      
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.getClaimableAirdrop],
       })

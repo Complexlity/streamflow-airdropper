@@ -5,7 +5,6 @@ import { type WalletTokenBalances } from '@/types/token'
 import { getTokenMetadata } from '@/services/api/tokenService'
 import { formatTokenAmount } from '@/utils'
 
-
 const connection = new Connection(env.solana.rpcEndpoint || clusterApiUrl(env.solana.cluster), 'confirmed')
 
 /**

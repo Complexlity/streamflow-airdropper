@@ -66,10 +66,7 @@ export const claimAirdrop = async (
  * @returns Prepared instructions or null if not eligible
  * @description This is used as a backup to check if the user has claimed their airdrop or not. Propagation to the api can be slow but if the user has claimed, getting the instructions will fail.
  */
-export const prepareClaimInstructions = async (
-  claimData: IClaimData,
-  wallet: Wallet,
-) => {
+export const prepareClaimInstructions = async (claimData: IClaimData, wallet: Wallet) => {
   try {
     return await distributorClient.prepareClaimInstructions(claimData, {
       // @ts-expect-error: The adapter type is compatible but TypeScript doesn't recognize it
