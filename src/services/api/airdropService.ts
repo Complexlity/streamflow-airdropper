@@ -60,7 +60,7 @@ export const getAirdropById = async (distributorId: string): Promise<AirdropCrea
  * @param offset Pagination offset
  * @returns List of airdrops
  */
-export const getAllAirdrops = async (limit = 10, offset = 0): Promise<AirdropSearchResultItem[]> => {
+export const getAllAirdrops = async (limit = 100, offset = 0): Promise<AirdropSearchResultItem[]> => {
   try {
     const response = await axiosStreamflow.post<AirdropSearchResult>(`${env.api.proxyServerUrl}/airdrops/search`, {
       actor: '',
