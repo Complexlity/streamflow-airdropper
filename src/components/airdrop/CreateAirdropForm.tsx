@@ -20,6 +20,7 @@ import { RecipientsUploader } from "./RecipientsUploader"
 import { toast } from "sonner"
 import { handleApiError } from "@/utils/errors"
 import { useTransactionToast } from "@/hooks/useTransactionToast"
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui"
 
 export const CreateAirdropForm = () => {
   const navigate = useNavigate()
@@ -76,14 +77,21 @@ export const CreateAirdropForm = () => {
     })
   }
 
+  if (!connected) {
+    return (
+      <div className="space-y-6">
+        <Header />
+        <div className="flex flex-col items-center justify-center">
+          <p className="text-red-500 mb-4">Please connect your wallet to create an airdrop.</p>
+          <WalletMultiButton>Connect Wallet</WalletMultiButton>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon" onClick={() => navigate("/")}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-2xl font-bold">Create Airdrop</h1>
-      </div>
+      <Header />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <BasicInfoSection
@@ -111,7 +119,17 @@ export const CreateAirdropForm = () => {
   )
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function Header() {
+  const navigate = useNavigate()
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="icon" onClick={() => navigate("/")}>
+        <ArrowLeft className="h-4 w-4" />
+      </Button>
+      <h1 className="text-2xl font-bold">Create Airdrop</h1>
+    </div>
+  )
+}
 
 interface BasicInfoSectionProps {
   formData: AirdropFormData
@@ -122,17 +140,14 @@ interface BasicInfoSectionProps {
   setCsvError: (error: string | null) => void
 }
 
-/**
- * Basic information section for airdrop creation form
- */
-export const BasicInfoSection = ({
+function BasicInfoSection({
   formData,
   onInputChange,
   recipients,
   setRecipients,
   csvError,
   setCsvError,
-}: BasicInfoSectionProps) => {
+}: BasicInfoSectionProps) {
   return (
     <Card>
       <CardHeader>
@@ -190,10 +205,8 @@ interface AirdropSettingsSectionProps {
   onInputChange: (name: string, value: string | boolean) => void
 }
 
-/**
- * Settings section for airdrop creation form
- */
-export const AirdropSettingsSection = ({ formData, onInputChange }: AirdropSettingsSectionProps) => {
+
+function AirdropSettingsSection({ formData, onInputChange }: AirdropSettingsSectionProps) {
   return (
     <Card>
       <CardHeader>
