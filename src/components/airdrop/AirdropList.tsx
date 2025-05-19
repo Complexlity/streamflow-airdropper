@@ -4,6 +4,7 @@ import { useAllAirdrops } from '@/hooks/airdrop/useAllAirdrops'
 import { useClaimableAirdrops } from '@/hooks/airdrop/useClaimableAirdrops'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { AirdropCard } from './AirdropCard'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 
 export const AirdropList = () => {
   const { connected, publicKey } = useWallet()
@@ -45,7 +46,12 @@ export const AirdropList = () => {
             ))}
           </div>
         ) : !connected ? (
-          <div className="col-span-full text-center py-8">Connect your wallet to view claimable airdrops</div>
+          <div className="col-span-full text-center py-8 space-y-4">
+            <p className="text-red-500">Connect your wallet to view claimable airdrops</p>
+            <WalletMultiButton >
+              Connect Wallet
+            </WalletMultiButton>
+          </div>
         ) : !claimableAirdrops || claimableAirdrops.length === 0 ? (
           <div className="col-span-full text-center py-8">No claimable airdrops found</div>
         ) : (
